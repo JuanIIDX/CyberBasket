@@ -8,6 +8,7 @@ from fastapi import FastAPI
 app = FastAPI()
 #app.include_router(user.router, prefix="/users", tags=["User"])
 
+# Prueba
 @app.get("/", tags=["Root"])
 def main():
     return {"message": "Hello World"}
