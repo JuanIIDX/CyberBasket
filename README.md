@@ -1,7 +1,7 @@
 # CyberBasket
 Proyecto de Software 2
 
-## Integrar el middleware de autenticacion
+## Cómo integrar el middleware de autenticacion
 Para integrar el middleware en un endpoint se debe hacer lo siguiente:
 1. Importar el middleware del paquete shared
 ``` python
