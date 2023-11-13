@@ -1,7 +1,12 @@
 from sqlalchemy.orm import Session
 from fastapi_pagination.ext.sqlalchemy import paginate
-from backend.shared.schemas import users as user_schema
-from models import user as user_models
+
+from ..schemas import users as user_schema
+from ..models import user as user_models
+
+def fetch_user_by_id(db:Session, user_id: int) -> user_schema.UserResponse:
+  user = db.query(user_models.User).filter(user_models.User.id == user_id).first()
+  return user
 
 def fetch_user_by_email(db:Session, email: str) -> user_schema.UserResponse:
   user = db.query(user_models.User).filter(user_models.User.email == email).first()
