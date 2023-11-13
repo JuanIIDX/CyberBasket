@@ -26,8 +26,8 @@ class Role(Base):
 
   users = relationship("User", back_populates="role")
 
-class Directions(Base):
-  __tablename__ = "directions"
+class UserDirections(Base):
+  __tablename__ = "user_directions"
 
   id = Column(Integer, primary_key=True)
   title = Column(String(100))
