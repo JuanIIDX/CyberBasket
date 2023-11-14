@@ -6,7 +6,6 @@ from backend.shared.schemas.users import UserResponse
 
 JWT_SECRET = config("jwt_secret")
 JWT_ALGORITHM = config("jwt_algorithm")
-API_KEY_HEADER_KEY = "api-key"
 
 
 def token_response(token: str):

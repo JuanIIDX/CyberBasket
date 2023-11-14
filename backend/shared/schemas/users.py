@@ -28,3 +28,7 @@ class UserDirectionsResponse(BaseModel):
   country: str
 
   user_id: int
+
+class UserLoginSchema(BaseModel):
+  email: str
+  password: str
