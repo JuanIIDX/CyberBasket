@@ -6,7 +6,7 @@ Para integrar el middleware en un endpoint se debe hacer lo siguiente:
 1. Importar el middleware del paquete shared
 ``` python
 from fastapi import Depends
-from backend.shared.auth.auth import JWTBearer
+from shared.auth.auth import JWTBearer
 ```
 2. Agregarlo como dependecia en el endpoint
 ``` python
