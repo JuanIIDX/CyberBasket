@@ -2,7 +2,7 @@ import time
 from typing import Dict, Optional
 import jwt
 from decouple import config
-from backend.shared.schemas.users import UserResponse
+from ..schemas.users import UserResponse
 
 JWT_SECRET = config("jwt_secret")
 JWT_ALGORITHM = config("jwt_algorithm")
@@ -17,7 +17,7 @@ def sign_jwt(user: UserResponse) -> Dict[str, str]:
     payload = {
         "id": user.id,
         "email": user.email,
-        "expires": time.time() + 600
+        "expires": time.time() + 7200
     }
 
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)

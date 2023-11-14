@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from database.db import Base
+from ..database.db import Base
 
 class User(Base):
   __tablename__ = "users"
@@ -17,6 +17,7 @@ class User(Base):
   role_id = Column(Integer, ForeignKey("roles.id"))
 
   role = relationship("Role", back_populates="users")
+  directions = relationship("UserDirections", back_populates="user")
 
 class Role(Base):
   __tablename__ = "roles"

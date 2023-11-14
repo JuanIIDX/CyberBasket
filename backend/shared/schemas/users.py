@@ -3,16 +3,16 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 class UserResponse(BaseModel):
-  id: int
+  id: Optional[int]
   name: str
   last_name: Optional[str]
   email: str
   password: str = Field(exclude=True)
-  creation_date: datetime
-  update_date: datetime
-  status: str
+  creation_date: Optional[datetime] = Field(default=datetime.now())
+  update_date: Optional[datetime] = Field(default=datetime.now())
+  status: Optional[str] = Field(default="created")
 
-  role_id: int
+  role_id: Optional[int]
 
 class RoleResponse(BaseModel):
   id: int
@@ -23,11 +23,20 @@ class UserDirectionsResponse(BaseModel):
   title: Optional[str]
   phone_number: Optional[str]
   address: str
-  city: str
-  state: str
-  country: str
+  city: Optional[str]
+  state: Optional[str]
+  country: Optional[str]
 
-  user_id: int
+  user_id: Optional[int]
+
+class UserCreation(BaseModel):
+  name: str
+  last_name: Optional[str] = Field(default="")
+  email: str
+  password: str = Field(exclude=True)
+  creation_date: Optional[datetime] = Field(default=datetime.now())
+  update_date: Optional[datetime] = Field(default=datetime.now())
+  status: Optional[str] = Field(default="created")
 
 class UserLoginSchema(BaseModel):
   email: str
