@@ -1,6 +1,8 @@
 # app/controllers/recombee_controller.py
 from fastapi import HTTPException
-from app.services.recombee_service import RecombeeService
+
+from recommendations.services.recommendation import RecombeeService
+
 
 recombee_service = RecombeeService()
 

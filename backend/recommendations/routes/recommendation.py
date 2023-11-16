@@ -1,6 +1,6 @@
 # app/routes/recombee.py
 from fastapi import APIRouter
-from app.controllers.recombee_controller import get_recommendations
+from controller.recommendation import get_recommendations
 
 router = APIRouter()
 
