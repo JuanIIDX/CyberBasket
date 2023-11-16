@@ -1,8 +1,11 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 from fastapi_pagination.ext.sqlalchemy import paginate
 
 from ..schemas import users as user_schema
 from ..models import user as user_models
+from ..auth.passwords import hash_password
 
 def fetch_user_by_id(db:Session, user_id: int) -> user_schema.UserResponse:
   user = db.query(user_models.User).filter(user_models.User.id == user_id).first()
@@ -12,15 +15,25 @@ def fetch_user_by_email(db:Session, email: str) -> user_schema.UserResponse:
   user = db.query(user_models.User).filter(user_models.User.email == email).first()
   return user
 
-def create_user(db:Session, new_user: user_schema.UserResponse) -> user_schema.UserResponse:
-  res_user = {}
+def create_user(db:Session, new_user: user_schema.UserCreation) -> user_schema.UserResponse:
   user = user_models.User(**new_user.model_dump())
+  user.password = hash_password(new_user.password)
 
   db.add(user)
   db.commit()
-  db.refresh(res_user)
+  db.refresh(user)
 
-  return user_schema.UserResponse(**res_user.__dict__)
+  return user_schema.UserResponse(**user.__dict__)
+
+def check_user_existance(db: Session, email: str, password: str) -> Optional[user_schema.UserResponse]:
+  hashed_password = hash_password(password)
+
+  user = db.query(user_models.User).filter(user_models.User.email == email).filter(user_models.User.password == hashed_password).first()
+
+  if user is None:
+    return None
+
+  return user_schema.UserResponse(**user.__dict__)
 
 def fetch_role(db:Session, role_name: str):
   role = db.query(user_models.Role).filter(user_models.Role.name == role_name).first()
@@ -41,6 +54,6 @@ def fetch_user_directions_by_id(db:Session, user_id: int):
   user_directions = user_directions.order_by(user_models.UserDirections.id)
 
   return paginate(
-    query=user_directions,
+    user_directions,
     transformer=lambda items: [user_schema.UserDirectionsResponse(**i.__dict__) for i in items],
   )
