@@ -4,21 +4,19 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Orden(Base):
     __tablename__ = "orden"
     id = Column('ID_OrdenPro', Integer, primary_key=True)
-    class Orden(Base):
-        __tablename__ = "orden"
-        id = Column('ID_OrdenPro', Integer, primary_key=True)
-        id_pago = Column('ID_Pago', Integer, ForeignKey('pago.ID_Pago'), nullable=False)
-        id_envio = Column('ID_Envio', Integer, ForeignKey('envio.ID_Envio'))
-        impuesto = Column('Impuesto', Float, nullable=False)
-        estado = Column('Estado', String(10), nullable=False)
-        fecha_creacion = Column('Fecha_Creacion', Date, nullable=False)
-        fecha_actualizacion = Column('Fecha_Actualizacion', Date, nullable=False)
+    id_pago = Column('ID_Pago', Integer, ForeignKey('pago.ID_Pago'), nullable=False)
+    id_envio = Column('ID_Envio', Integer, ForeignKey('envio.ID_Envio'))
+    impuesto = Column('Impuesto', Float, nullable=False)
+    estado = Column('Estado', String(10), nullable=False)
+    fecha_creacion = Column('Fecha_Creacion', Date, nullable=False)
+    fecha_actualizacion = Column('Fecha_Actualizacion', Date, nullable=False)
 
-        pago = relationship('Pago')
-        envio = relationship('Envio')
+    pago = relationship('Pago')
+    envio = relationship('Envio')
 
 
 class Detalle_Orden(Base):
