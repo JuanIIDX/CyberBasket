@@ -1,21 +1,13 @@
+# services/recombee_service.py
+from recombee_api_client.api_client import RecombeeClient
+from recombee_api_client.api_requests import RecommendItemsToUser
+from utils.connection_client import get_recombee_cliente
+
 class RecombeeService:
-    def __init__(self) -> None:
-        pass
-    #  def __init__(self):
-    #     self.base_url = 'https://rapi.recombee.com/v1'
-    #     self.headers = {
-    #         'Content-Type': 'application/json',
-    #         'Authorization': f'Token {RECOMBEE_API_KEY}'
-    #     }
+    def __init__(self):
+        self.client = get_recombee_cliente()
 
-    # async def get_recommendations(self, user_id, item_count=5):
-    #     # Implementa lógica para obtener recomendaciones de Recombee
-    #     # Utiliza httpx para realizar solicitudes HTTP
-    #     # Devuelve las recomendaciones como un objeto JSON
-
-    #     # Ejemplo:
-    #     url = f'{self.base_url}/personalized/user/{user_id}/recommend/'
-    #     params = {'count': item_count}
-    #     async with httpx.AsyncClient() as client:
-    #         response = await client.get(url, headers=self.headers, params=params)
-    #         return response.json()
+    def get_recommendations(self, user_id: str, count: int):
+        request = RecommendItemsToUser(user_id, count)
+        response = self.client.send(request)
+        return response
