@@ -1,82 +1,46 @@
+from sqlalchemy.orm import Session
+from models.orders import Orden, Detalle_Orden
 
-from fastapi import APIRouter, HTTPException
-from typing import List
+def get_ordenes(db: Session):
+    return db.query(Orden).all()
 
-from orden.models.orden import Orden
-from orden.models.detalle_orden import Detalle_Orden
-from orden.schemas.orden import OrdenCreate, OrdenOut, OrdenUpdate
-from orden.schemas.detalle_orden import DetalleOrdenCreate, DetalleOrdenOut, DetalleOrdenUpdate
+def get_orden(db: Session, orden_id: int):
+    return db.query(Orden).filter(Orden.id == orden_id).first()
 
-router = APIRouter()
+def create_orden(db: Session, orden: Orden):
+    db.add(orden)
+    db.commit()
+    db.refresh(orden)
+    return orden
 
-# Controladores para la clase Orden
+def update_orden(db: Session, orden: Orden):
+    db.merge(orden)
+    db.commit()
+    return orden
 
-@router.post("/ordenes/", response_model=OrdenOut)
-async def create_order(order: OrdenCreate):
-    db_order = Orden(**order.dict())
-    db_order.save()
-    return db_order
+def delete_orden(db: Session, orden_id: int):
+    orden = db.query(Orden).filter(Orden.id == orden_id).first()
+    db.delete(orden)
+    db.commit()
 
-@router.get("/ordenes/", response_model=List[OrdenOut])
-async def read_orders(skip: int = 0, limit: int = 100):
-    orders = Orden.objects.skip(skip).limit(limit)
-    return orders
+def get_detalle_ordenes(db: Session):
+    return db.query(Detalle_Orden).all()
 
-@router.get("/ordenes/{order_id}/", response_model=OrdenOut)
-async def read_order(order_id: str):
-    order = Orden.objects(id=order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-    return order
+def get_detalle_orden(db: Session, detalle_orden_id: int):
+    return db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
 
-@router.put("/ordenes/{order_id}/", response_model=OrdenOut)
-async def update_order(order_id: str, order: OrdenUpdate):
-    db_order = Orden.objects(id=order_id).first()
-    if not db_order:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-    db_order.update(**order.dict())
-    return db_order
+def create_detalle_orden(db: Session, detalle_orden: Detalle_Orden):
+    db.add(detalle_orden)
+    db.commit()
+    db.refresh(detalle_orden)
+    return detalle_orden
 
-@router.delete("/ordenes/{order_id}/", response_model=OrdenOut)
-async def delete_order(order_id: str):
-    db_order = Orden.objects(id=order_id).first()
-    if not db_order:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-    db_order.delete()
-    return db_order
+def update_detalle_orden(db: Session, detalle_orden: Detalle_Orden):
+    db.merge(detalle_orden)
+    db.commit()
+    return detalle_orden
 
-# Controladores para la clase Detalle_Orden
-
-@router.post("/detalles_orden/", response_model=DetalleOrdenOut)
-async def create_order_detail(order_detail: DetalleOrdenCreate):
-    db_order_detail = Detalle_Orden(**order_detail.dict())
-    db_order_detail.save()
-    return db_order_detail
-
-@router.get("/detalles_orden/", response_model=List[DetalleOrdenOut])
-async def read_order_details(skip: int = 0, limit: int = 100):
-    order_details = Detalle_Orden.objects.skip(skip).limit(limit)
-    return order_details
-
-@router.get("/detalles_orden/{order_detail_id}/", response_model=DetalleOrdenOut)
-async def read_order_detail(order_detail_id: str):
-    order_detail = Detalle_Orden.objects(id=order_detail_id).first()
-    if not order_detail:
-        raise HTTPException(status_code=404, detail="Detalle de orden no encontrado")
-    return order_detail
-
-@router.put("/detalles_orden/{order_detail_id}/", response_model=DetalleOrdenOut)
-async def update_order_detail(order_detail_id: str, order_detail: DetalleOrdenUpdate):
-    db_order_detail = Detalle_Orden.objects(id=order_detail_id).first()
-    if not db_order_detail:
-        raise HTTPException(status_code=404, detail="Detalle de orden no encontrado")
-    db_order_detail.update(**order_detail.dict())
-    return db_order_detail
-
-@router.delete("/detalles_orden/{order_detail_id}/", response_model=DetalleOrdenOut)
-async def delete_order_detail(order_detail_id: str):
-    db_order_detail = Detalle_Orden.objects(id=order_detail_id).first()
-    if not db_order_detail:
-        raise HTTPException(status_code=404, detail="Detalle de orden no encontrado")
-    db_order_detail.delete()
-    return db_order_detail
+def delete_detalle_orden(db: Session, detalle_orden_id: int):
+    detalle_orden = db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
+    db.delete(detalle_orden)
+    db.commit()
