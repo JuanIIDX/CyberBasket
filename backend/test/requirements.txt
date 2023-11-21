@@ -1,0 +1,4 @@
+fastapi[all]
+sqlalchemy[azure]
+uvicorn[standard]
+pymssql
