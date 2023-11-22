@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,validator
+from datetime import datetime
 
 
 class UserBase(BaseModel):
@@ -15,3 +16,8 @@ class ItemBase(BaseModel):
     category: str
     brand : str
     discount : float
+    @validator('price')
+    def validate_price(cls, price):
+        if price < 0:
+            raise ValueError("Price cannot be negative")
+        return price
