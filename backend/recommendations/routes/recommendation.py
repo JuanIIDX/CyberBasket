@@ -1,5 +1,5 @@
 # app/routes/recombee.py
-from fastapi import APIRouter, Body, UploadFile, File
+from fastapi import APIRouter, Body, UploadFile, File,Response
 from models.model import UserBase
 from services.recommendation import RecombeeService
 from services.user import UserService
@@ -41,6 +41,13 @@ async def upload_items(file: UploadFile = File(...)):
     service_item.upload_items_from_json(data)
     return {"message": "Items uploaded successfully"}
 
+@router.get("/items")
+async def get_all_items():
+    return service_item.get_all_items()
+
+@router.get("/items/{item_id}")
+async def get_item_by_id(item_id: str):
+    return service_item.get_item(item_id)
 
 # def track_item_view(self, user_id: str, item_id: str):
 #         request = AddDetailView(user_id, item_id)
