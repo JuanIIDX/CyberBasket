@@ -3,10 +3,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-
-class Orden(Base):
-    __tablename__ = "orden"
-    id = Column('ID_OrdenPro', Integer, primary_key=True)
     
     
 class Orden(Base):
