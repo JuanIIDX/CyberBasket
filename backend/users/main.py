@@ -13,10 +13,12 @@ from shared.database.db import get_db
 from shared.schemas import users as user_schema
 from shared.controllers import users  as users_controller
 from shared.auth.jwt import sign_jwt
+from shared.auth.auth import JWTBearer
 
 # To migrate the predefined databases
-from shared.database.db import Base, engine
-Base.metadata.create_all(bind=engine)
+# from shared.database.db import Base, engine
+# Base.metadata.create_all(bind=engine)
+# print("database migrated successfully!")
 
 users_router = APIRouter()
 
@@ -43,6 +45,11 @@ def login(data: user_schema.UserLoginSchema, db: Session = Depends(get_db)):
     response["user"] = user_fetched.model_dump(mode="json")
 
     return response
+
+# Example on how to use authentication in an endpoint
+@users_router.post("/test", dependencies=[Depends(JWTBearer())])
+def test():
+    return {"greeting": "hello world"}
 
 app = FastAPI()
 add_pagination(app)
