@@ -36,6 +36,9 @@ def all_productos(db):
 def all_Inventario(db):
     return db.query(Inventario).all()
 
+def all_Categoria_tienda(db):
+    return db.query(Categoria_tienda).all()
+
 
 
 """ controladores para tienda """
@@ -66,3 +69,42 @@ def get_productos_por_tienda(tienda_id: int,db):
         .all()
     )
     return result
+
+""" controladores para catogorias x tienda """
+
+def create_categoria_tienda(new_tienda: Categoria_tienda, db):
+
+    tienda = Categoria_tienda(**new_tienda.dict())
+    db.add(tienda)
+    db.commit()
+    db.refresh(tienda)
+    return tienda
+
+def get_all_categorias_tiendas(db):
+    return db.query(Categoria_tienda).all()
+
+def exist_categoria_tienda(nombre: str, db):
+    usr = db.query(Categoria_tienda).filter(Categoria_tienda.nombre== nombre).first()
+    return usr
+
+""" controladores categorias_tiendasxtiendas """
+
+def create_categoria_tiendaXtienda(new_tienda: Categoria_tiendaXtienda, db):
+
+    tienda = Categoria_tiendaXtienda(**new_tienda.dict())
+    db.add(tienda)
+    db.commit()
+    db.refresh(tienda)
+    return tienda
+
+""" def get_tiendas_por_categoria(categoria_id: int, db):
+    result = (
+        db.query(Tienda.id, Tienda.nombre, Tienda.estado)
+        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_tienda == Tienda.id)
+        .filter(Categoria_tiendaXtienda.id_categoria_tienda == categoria_id)
+        .order_by(Tienda.nombre)
+        .all()
+    )
+    return result """
+
+

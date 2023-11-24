@@ -18,3 +18,10 @@ class tiendaModel(BaseModel):
     id_direccion: int
     nombre: str
     estado: str
+
+class categoria_tienda(BaseModel):
+    nombre: str
+
+class categoria_tiendaXtienda(BaseModel):
+    id_categoria_tienda: int
+    id_tienda: int

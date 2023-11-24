@@ -91,9 +91,34 @@ async def get_consulta(tienda_id: int, db: Session = Depends(get_db)):
         db.close()
 
 
+""" Consultas categorias por tiendas """
+
+
+#Agrega categoria por tienda
+@router.post("/categoria_tienda")
+def create_new_categoria_tienda(new_tienda: categoria_tienda, db: Session = Depends(get_db)):
+    exist = exist_categoria_tienda(new_tienda.nombre, db)
+    if exist:
+        return {"message": "Shop name already exist"}
+
+    rol = create_categoria_tienda(new_tienda, db)
+    return rol
 
 
 
+#Consigue todos las categorias de las tiendas
+@router.get("/categoria_tienda",response_model=list[categoria_tienda])
+def get_all_categoria_tienda(db: Session = Depends(get_db)):
+    return all_Categoria_tienda(db)
 
-
-
+# Ruta de ejemplo en FastAPI
+""" @router.get("/consulta_tiendas_x_categoria/{categoria_id}")
+async def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get_db)):
+    try:
+        result = get_tiendas_por_categoria(categoria_id,db)
+        data = [{"nombre": nombre, "estado": estado} for nombre, estado in result]
+        return {"data": data}
+    except Exception as e:
+        print("Esta incorrecto")
+    finally:
+        db.close() """

@@ -26,6 +26,16 @@ class Inventario(Base):
     stock = Column(Integer)
 
 
+class Categoria_tienda(Base):
+    __tablename__='categoria_tienda'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    nombre = Column(String(100))
+
+class Categoria_tiendaXtienda(Base):
+    __tablename__='categoria_tiendaXtienda'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_categoria_tienda=Column(Integer, ForeignKey("categoria_tienda.id"))
+    id_tienda = Column(Integer, ForeignKey("tienda.id"))
 
 
 
