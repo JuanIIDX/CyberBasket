@@ -22,12 +22,6 @@ engine = create_engine(DATABASE_URL, echo=True, future=True)
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-Base = declarative_base()
-engine = create_engine("sqlite:///database.db", echo=True, future=True)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 print("database connected successfully!")
 
 def get_db():

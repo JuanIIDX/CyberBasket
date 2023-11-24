@@ -15,6 +15,7 @@ from shared.auth.jwt import sign_jwt
 # To migrate the predefined databases
 # from shared.database.db import Base, engine
 # Base.metadata.create_all(bind=engine)
+# print("database migrated successfully!")
 
 users_router = APIRouter()
 
