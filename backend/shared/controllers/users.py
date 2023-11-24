@@ -65,7 +65,6 @@ def fetch_user_directions_by_id(db:Session, user_id: int):
 
 def sync_user_recombee(user):
     count = len(user_service.get_all_usersId()) + 1
-    user_service.create_user(user_recombe)
     user_recombe = {
         "user_id": str(count),
         "name": user.name,
