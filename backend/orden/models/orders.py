@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
     
-    
+#DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
 class Orden(Base):
     __tablename__ = "orden"
     id = Column('id', Integer, primary_key=True)
@@ -23,11 +23,12 @@ class Orden(Base):
 class Detalle_Orden(Base):
     __tablename__ = "Detalle_orden"
     id = Column('id', Integer, primary_key=True)
-    orden_id = Column('orde_id', Integer, ForeignKey('orden.id'))
-    producto_id = Column('id_producto', Integer, ForeignKey('producto.id_producto'))
-    cantidad = Column('Cantidad', Integer)
-    precio_unitario = Column('Precio_Unitario', Float)
-    #orden = relationship('Orden'), 
+    orden_id = Column('orden_id', Integer, ForeignKey('orden.id'))
+    producto_id = Column('producto_id', Integer)
+    #producto_id = Column('producto_id', Integer, ForeignKey('producto.producto_id'))
+    cantidad = Column('cantidad', Integer)
+    precio_unitario = Column('precio_unitario', Float)
+    #orden = relationship('Orden') 
     #producto = relationship('Producto')
     
 #Orden.detalle_orden = relationship('Detalle_Orden', back_populates='orden')

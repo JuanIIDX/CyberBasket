@@ -38,16 +38,22 @@ def get_detalle_ordenes(db: Session):
 def get_detalle_orden(db: Session, detalle_orden_id: int):
     return db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
 
-def create_detalle_orden(db: Session, detalle_orden: Detalle_Orden):
-    db.add(detalle_orden)
+def create_detalle_orden(db: Session, detalle_orden: OrderDetailBase):
+    orden_model = Detalle_Orden(**detalle_orden.dict())
+    db.add(orden_model)
     db.commit()
-    db.refresh(detalle_orden)
-    return detalle_orden
+    db.refresh(orden_model)
+    return orden_model
 
-def update_detalle_orden(db: Session, detalle_orden: Detalle_Orden):
-    db.merge(detalle_orden)
-    db.commit()
-    return detalle_orden
+def update_detalle_orden(db: Session, detalle_orden_id: int, detalle_orden: Detalle_Orden):
+    db_orden = db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
+    if db_orden:
+        for key, value in detalle_orden.dict().items():
+            setattr(db_orden, key, value)
+        db.commit()
+    print(db_orden, type(detalle_orden))   
+    orden_update = {**db_orden.__dict__, **detalle_orden.dict()} 
+    return orden_update
 
 def delete_detalle_orden(db: Session, detalle_orden_id: int):
     detalle_orden = db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
