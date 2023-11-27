@@ -77,14 +77,15 @@ def get_all_tiendasd(db: Session = Depends(get_db)):
 
 
 # Ruta de ejemplo en FastAPI
-@router.get("/consulta/{tienda_id}")
+@router.get("/consulta/{tienda_id}",response_model=list[consulta_productos_por_tienda])
 async def get_consulta(tienda_id: int, db: Session = Depends(get_db)):
     try:
         # Realizar la consulta
         result = get_productos_por_tienda(tienda_id,db)
         # Convertir el resultado a JSON
-        data = [{"nombre": nombre, "descripcion": descripcion, "stock": stock} for nombre, descripcion, stock in result]
-        return {"data": data}
+        """ data = [{"nombre": nombre, "descripcion": descripcion, "stock": stock} for nombre, descripcion, stock in result]
+        return {"data": data} """
+        return result
     except Exception as e:
         print("Esta incorrecto")
     finally:
@@ -112,13 +113,24 @@ def get_all_categoria_tienda(db: Session = Depends(get_db)):
     return all_Categoria_tienda(db)
 
 # Ruta de ejemplo en FastAPI
-""" @router.get("/consulta_tiendas_x_categoria/{categoria_id}")
+""" @router.get("/consulta_tiendas_x_categoria/{categoria_id}",response_model=list[tiendaModel])
 async def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get_db)):
     try:
         result = get_tiendas_por_categoria(categoria_id,db)
+        print('jhony' + result)
         data = [{"nombre": nombre, "estado": estado} for nombre, estado in result]
         return {"data": data}
     except Exception as e:
         print("Esta incorrecto")
     finally:
-        db.close() """
+        db.close()  """
+
+@router.get("/consulta_tiendas_x_categoria/{categoria_id}",response_model=list[tiendaModel])
+def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get_db)):
+    return get_tiendas_por_categoria(categoria_id,db)
+    db.close() 
+
+@router.get("/categoriaxtienda/{id_tienda}",response_model=list[categoria_tienda])
+def get_consulta_categoria_x_tienda2(id_tienda: int, db: Session = Depends(get_db)):
+    return get_categorias_por_tienda(id_tienda,db)
+    db.close() 

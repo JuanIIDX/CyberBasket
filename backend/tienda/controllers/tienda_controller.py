@@ -62,12 +62,13 @@ def exist_tienda(nombre: str, db):
 
 def get_productos_por_tienda(tienda_id: int,db):
     result = (
-        db.query(Producto.nombre, Producto.descripcion, Inventario.stock)
-        .join(Inventario, Inventario.id_producto == Producto.id)
-        .join(Tienda, Inventario.id_tienda == Tienda.id)
-        .filter(Tienda.id == tienda_id)
+        db.query(Producto.nombre, Producto.descripcion, Inventario.cantidad)
+        .join(Inventario, Inventario.id_producto == Producto.id_producto)
+        .join(Tienda, Inventario.id_tienda == Tienda.id_tienda)
+        .filter(Tienda.id_tienda == tienda_id)
         .all()
     )
+    print(result)
     return result
 
 """ controladores para catogorias x tienda """
@@ -97,14 +98,25 @@ def create_categoria_tiendaXtienda(new_tienda: Categoria_tiendaXtienda, db):
     db.refresh(tienda)
     return tienda
 
-""" def get_tiendas_por_categoria(categoria_id: int, db):
+def get_tiendas_por_categoria(categoria_id: int, db):
     result = (
-        db.query(Tienda.id, Tienda.nombre, Tienda.estado)
-        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_tienda == Tienda.id)
+        db.query(Tienda.id_tienda, Tienda.nombre, Tienda.estado, Tienda.id_direccion)
+        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_tienda == Tienda.id_tienda)
         .filter(Categoria_tiendaXtienda.id_categoria_tienda == categoria_id)
         .order_by(Tienda.nombre)
         .all()
     )
-    return result """
+    return result 
 
 
+def get_categorias_por_tienda(tienda_id: int, db):
+    """ result = (
+        db.query(categoria_tienda.nombre)
+        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_categoria_tienda == categoria_tienda.id_categoria_tienda)
+        .filter(Categoria_tiendaXtienda.id_tienda == tienda_id)
+        .order_by(categoria_tienda.id_categoria_tienda)
+        .all()
+    )
+    print(result) """
+    result = (db.query(categoria_tienda).all())
+    return result 
