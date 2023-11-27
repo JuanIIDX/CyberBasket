@@ -37,6 +37,7 @@ class UserCreation(BaseModel):
   creation_date: Optional[datetime] = Field(default=datetime.now())
   update_date: Optional[datetime] = Field(default=datetime.now())
   status: Optional[str] = Field(default="created")
+  role_id: int = Field(default=1)
 
 class UserLoginSchema(BaseModel):
   email: str
