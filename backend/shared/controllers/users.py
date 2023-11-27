@@ -1,3 +1,7 @@
+# The line `return users_controller.fetch_user_directions_by_id(db=db, user_id=user_id)` is
+# calling the `fetch_user_directions_by_id` function from the `users_controller` module. This
+# function is responsible for fetching the directions associated with a specific user from the
+# database.
 from typing import Optional
 
 from sqlalchemy.orm import Session
