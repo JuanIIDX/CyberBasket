@@ -140,3 +140,31 @@ def get_consulta_categoria_x_tienda2(id_tienda: int, db: Session = Depends(get_d
 def create_new_categoria_tienda2(new_tienda: categoria_tiendaXtienda, db: Session = Depends(get_db)):
     rol = create_categoria_tiendaXtienda(new_tienda, db)
     return rol
+
+
+#Devuelve todas las marcas
+@router.get("/marca",response_model=list[MarcaSchema])
+def get_all_marcas(db: Session = Depends(get_db)):
+    return get_all_Marcas(db)
+
+#Devuelve todas las marcas x productos
+@router.get("/marcasXProducto",response_model=list[ProductoXMarcaSchema])
+def get_all_marcasxproductos(db: Session = Depends(get_db)):
+    return get_all_MarcasXProductos(db)
+
+#Agrega marcas
+@router.post("/marca")
+def create_new_marcas(new_tienda: MarcaSchema, db: Session = Depends(get_db)):
+    rol = createMarca(new_tienda, db)
+    return rol
+
+#Agrega marca por producto
+@router.post("/marcaXproducto")
+def create_new_macas_productos(new_tienda: ProductoXMarcaSchema, db: Session = Depends(get_db)):
+    rol = createMarcaXProducto(new_tienda, db)
+    return rol
+
+@router.get("/productosxmarcas/{id_marca}",response_model=list[MarcaSchema])
+def get_consulta_productos_por_marca(id_marca: int, db: Session = Depends(get_db)):
+    return get_productos_por_marca(id_marca,db)
+    db.close() 

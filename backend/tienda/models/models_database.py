@@ -55,5 +55,16 @@ class Categoria_tiendaXtienda(Base):
     id_categoria_tienda=Column(Integer, ForeignKey("categoria_tienda.id_categoria_tienda"))
     id_tienda = Column(Integer, ForeignKey("tienda.id_tienda"))
 
+class Marca(Base):
+    __tablename__='marca'
+    id_marca = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    nombre=Column(String(100))
+    descripcion=Column(String(1000))
+
+class ProductoXMarca(Base):
+    __tablename__='productoXmarca'
+    id_ProductoXMarca  = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_producto=Column(Integer, ForeignKey("producto.id_producto"))
+    id_marca = Column(Integer, ForeignKey("marca.id_marca"))
 
 

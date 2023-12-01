@@ -39,3 +39,15 @@ class temporal(BaseModel):
     id_tienda : int
     nombre: str
     estado: bool
+
+class MarcaSchema(BaseModel):
+    nombre: str
+    descripcion: str
+
+class ProductoXMarcaSchema(BaseModel):
+    id_producto: int
+    id_marca: int
+
+
+
+

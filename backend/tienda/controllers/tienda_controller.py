@@ -118,3 +118,39 @@ def get_categorias_por_tienda(tienda_id: int, db):
         .all()
     )
     return result 
+
+""" --------- marcas de productos----------- """
+
+""" post marca """
+def createMarca(marca: Marca, db):
+    cmarca = Marca(**marca.dict())
+    db.add(cmarca)
+    db.commit()
+    db.refresh(cmarca)
+    return cmarca
+
+""" post marcaxproducto """
+def createMarcaXProducto(NewproductMarca: ProductoXMarca, db):
+    productMarca = ProductoXMarca(**NewproductMarca.dict())
+    db.add(productMarca)
+    db.commit()
+    db.refresh(productMarca)
+    return productMarca
+
+""" Trae todas las marcas """
+def get_all_Marcas(db):
+    return db.query(Marca).all()
+
+""" Trae todos los registros de las relaciones entre marcas y productos """
+def get_all_MarcasXProductos(db):
+    return db.query(ProductoXMarca).all()
+
+def get_productos_por_marca(marca_id: int, db):
+    result = (
+        db.query(Producto)
+        .join(ProductoXMarca, ProductoXMarca.id_producto == Producto.id_producto)
+        .filter(ProductoXMarca.id_marca == marca_id)
+        .order_by(Producto.id_producto)
+        .all()
+    )
+    return result 
