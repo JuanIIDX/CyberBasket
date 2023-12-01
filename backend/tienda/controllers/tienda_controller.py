@@ -110,13 +110,11 @@ def get_tiendas_por_categoria(categoria_id: int, db):
 
 
 def get_categorias_por_tienda(tienda_id: int, db):
-    """ result = (
-        db.query(categoria_tienda.nombre)
-        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_categoria_tienda == categoria_tienda.id_categoria_tienda)
+    result = (
+        db.query(Categoria_tienda.id_categoria_tienda, Categoria_tienda.nombre)
+        .join(Categoria_tiendaXtienda, Categoria_tiendaXtienda.id_categoria_tienda == Categoria_tienda.id_categoria_tienda)
         .filter(Categoria_tiendaXtienda.id_tienda == tienda_id)
-        .order_by(categoria_tienda.id_categoria_tienda)
+        .order_by(Categoria_tienda.id_categoria_tienda)
         .all()
     )
-    print(result) """
-    result = (db.query(categoria_tienda).all())
     return result 

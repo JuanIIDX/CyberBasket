@@ -134,3 +134,9 @@ def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get
 def get_consulta_categoria_x_tienda2(id_tienda: int, db: Session = Depends(get_db)):
     return get_categorias_por_tienda(id_tienda,db)
     db.close() 
+
+#Agrega categoria por tienda
+@router.post("/post_categoria_tienda_a_tienda")
+def create_new_categoria_tienda2(new_tienda: categoria_tiendaXtienda, db: Session = Depends(get_db)):
+    rol = create_categoria_tiendaXtienda(new_tienda, db)
+    return rol

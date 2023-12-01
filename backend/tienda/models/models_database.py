@@ -51,7 +51,7 @@ class Categoria_tienda(Base):
 
 class Categoria_tiendaXtienda(Base):
     __tablename__='categoria_tiendaXtienda'
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_CTxT = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_categoria_tienda=Column(Integer, ForeignKey("categoria_tienda.id_categoria_tienda"))
     id_tienda = Column(Integer, ForeignKey("tienda.id_tienda"))
 
