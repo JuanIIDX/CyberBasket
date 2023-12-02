@@ -16,8 +16,14 @@ from shared.auth.jwt import sign_jwt
 from shared.auth.auth import JWTBearer
 
 # To migrate the predefined databases
+<<<<<<< HEAD
 from shared.database.db import Base, engine
 Base.metadata.create_all(bind=engine)
+=======
+# from shared.database.db import Base, engine
+# Base.metadata.create_all(bind=engine)
+# print("database migrated successfully!")
+>>>>>>> 45ebc2aa7039ab3833ec08092a06c480722a422e
 
 users_router = APIRouter()
 
