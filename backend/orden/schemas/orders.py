@@ -5,15 +5,15 @@ from pydantic import BaseModel
 
 
 class OrderBase(BaseModel):
-    cliente_info: str
-    numero_envio: str
-    total_orden: float
-    id_tienda: int
-    id_cliente: Optional[int] = None
+    id_pago: Optional[int] = None
+    id_envio: Optional[int] = None
     impuesto: float
     estado: str
     fecha_creacion: date
     fecha_actualizacion: date
+    id_tienda: Optional[int] = None
+    id_cliente: Optional[int] = None
+
 
 class OrderDetailBase(BaseModel):
     orden_id: int
@@ -27,5 +27,15 @@ class CarritoComprarBase(BaseModel):
     cantidad: int
     precio_unitario: float
     estado: str
-
-
+    
+class envio(BaseModel):
+    costo: float
+    descripcion: str
+    estado: str
+    numero_envio: str
+    
+class pago(BaseModel):
+    tipo_pago: str
+    monto: float
+    estado: str
+    fecha_creacion: date

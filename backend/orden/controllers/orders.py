@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase
 import stripe
 
@@ -60,6 +60,15 @@ def delete_detalle_orden(db: Session, detalle_orden_id: int):
     detalle_orden = db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
     db.delete(detalle_orden)
     db.commit()
+    
+#controladores envio
+
+def crear_envio(db: Session, envio: envio):
+    envio_model = envio(**envio.dict())
+    db.add(envio_model)
+    db.commit()
+    db.refresh(envio_model)
+    return envio_model   
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 

@@ -6,7 +6,7 @@ Base = declarative_base()
     
 #DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
 class Orden(Base):
-    __tablename__ = "ordenes"
+    __tablename__ = "Orden"
     id_orden = Column(Integer, primary_key=True)
     cliente_info = Column(String(200), nullable=False)
     numero_envio = Column(String(200), nullable=False)
@@ -17,13 +17,17 @@ class Orden(Base):
     estado = Column('estado', String(10), nullable=True,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
     fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
+    id_envio = Column(Integer, ForeignKey('envio.id_envio'))
+    id_pago = Column(Integer, ForeignKey('pago.id_pago'))
+
     Detalle_Ordenes = relationship('Detalle_Orden', back_populates='orden')
 
 
+
 class Detalle_Orden(Base):
-    __tablename__ = "Detalle_Ordenes"
-    id_detalle_orden = Column('id', Integer, primary_key=True,autoincrement=True)
-    orden_id = Column(Integer, ForeignKey('ordenes.id'))
+    __tablename__ = "Detalle_Orden"
+    id = Column('id', Integer, primary_key=True,autoincrement=True)
+    id_orden = Column(Integer, ForeignKey('ordenes.id'))
     producto_id = Column(Integer,ForeignKey('productos.id_producto'))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
@@ -41,14 +45,21 @@ class Carrito_Compra(Base):
     estado = Column('estado', String(10), nullable=False,default='pendiente')
     producto = relationship('Producto')
     user = relationship('User')
-
-
-class Pago(Base):
-    __tablename__ = "pagos"
-    id_pago = Column(Integer, primary_key=True,autoincrement=True)
-    id_orden = Column(Integer, ForeignKey('ordenes.id'))
-    monto = Column(Float)
-    fecha_creacion = Column('fecha_creacion', Date, nullable=False)
-    fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
+    
+class envio(Base):
+    __tablename__ = "envio"
+    id_envio = Column(Integer, primary_key=True,autoincrement=True)
+    costo = Column(Float)
+    descripcion = Column(String(200))
+    estado = Column('estado', String(10), nullable=False,default='pendiente')
+    numero_envio = Column(String(200))
     orden = relationship('Orden')
-    user = relationship('User')
+    
+class pago(Base):
+    __tablename__ = "Pagos"
+    id_pago = Column(Integer, primary_key=True,autoincrement=True)
+    tipo_pago = Column(String(200))
+    monto = Column(Float)
+    estado = Column('estado', String(100), nullable=False,default='pendiente')
+    fecha_creacion = Column('fecha_creacion', Date, nullable=False)
+    orden = relationship('Orden')
