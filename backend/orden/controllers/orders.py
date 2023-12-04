@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase
+from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
 import stripe
 
 def get_ordenes(db: Session):
@@ -63,12 +63,12 @@ def delete_detalle_orden(db: Session, detalle_orden_id: int):
     
 #controladores envio
 
-def crear_envio(db: Session, envio: envio):
-    envio_model = envio(**envio.dict())
+def crear_envio(db: Session, envio_data: envioBase):
+    envio_model = envio(**envio_data.dict())
     db.add(envio_model)
     db.commit()
     db.refresh(envio_model)
-    return envio_model   
+    return envio_model  
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 

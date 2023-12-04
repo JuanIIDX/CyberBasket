@@ -28,13 +28,13 @@ class CarritoComprarBase(BaseModel):
     precio_unitario: float
     estado: str
     
-class envio(BaseModel):
+class envioBase(BaseModel):
     costo: float
     descripcion: str
     estado: str
     numero_envio: str
     
-class pago(BaseModel):
+class pagoBase(BaseModel):
     tipo_pago: str
     monto: float
     estado: str

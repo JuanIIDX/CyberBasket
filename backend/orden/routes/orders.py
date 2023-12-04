@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envio
+from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
 
 from sqlalchemy.orm import Session
 from shared.database.db import get_db
@@ -62,7 +62,7 @@ def create_new_carrito_compra(carrito_compra: CarritoComprarBase, db: Session = 
 # rutas para envio
 
 @router.post("/envios")
-def create_new_envio(envio: envio, db: Session = Depends(get_db)):
+def create_new_envio(envio: envioBase, db: Session = Depends(get_db)):
     return crear_envio(db, envio)
 
 
