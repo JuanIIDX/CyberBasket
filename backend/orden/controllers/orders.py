@@ -73,7 +73,7 @@ def crear_envio(db: Session, envio_data: envioBase):
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 
 def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
-    carrito_compra_model = Carrito_Compra(**carrito_compra.model_dump())
+    carrito_compra_model = Carrito_Compra(**carrito_compra.dict())
     db.add(carrito_compra_model)
     db.commit()
     db.refresh(carrito_compra_model)
