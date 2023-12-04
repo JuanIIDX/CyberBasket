@@ -3,13 +3,16 @@ from datetime import date
 from typing import List, Optional
 from pydantic import BaseModel
 
+
 class OrderBase(BaseModel):
-    id_pago: int
-    id_envio: int
+    id_pago: Optional[int] = None
+    id_envio: Optional[int] = None
     impuesto: float
     estado: str
     fecha_creacion: date
-    fecha_actualizacion: Optional[date] = None
+    fecha_actualizacion: date
+    id_tienda: Optional[int] = None
+    id_cliente: Optional[int] = None
 
 
 class OrderDetailBase(BaseModel):
@@ -18,4 +21,21 @@ class OrderDetailBase(BaseModel):
     cantidad: int
     precio_unitario: float
 
-
+class CarritoComprarBase(BaseModel):
+    producto_id: int
+    user_id: int
+    cantidad: int
+    precio_unitario: float
+    estado: str
+    
+class envio(BaseModel):
+    costo: float
+    descripcion: str
+    estado: str
+    numero_envio: str
+    
+class pago(BaseModel):
+    tipo_pago: str
+    monto: float
+    estado: str
+    fecha_creacion: date

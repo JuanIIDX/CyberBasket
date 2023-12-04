@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from orden.schemas.orders import OrderBase, OrderDetailBase
+from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envio
 
 from sqlalchemy.orm import Session
 from shared.database.db import get_db
-from orden.controllers.orders import get_ordenes, get_orden, create_orden, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
 
 router = APIRouter()
 
@@ -52,3 +52,21 @@ def update_new_detalle_orden(detalle_orden_id: int, detalle_orden: OrderDetailBa
 def delete_new_detalle_orden(detalle_orden_id: int, db: Session = Depends(get_db)):
     return delete_detalle_orden(db, detalle_orden_id)
 
+
+# rutas para Carrito_Compra
+
+@router.post("/carrito_compras")
+def create_new_carrito_compra(carrito_compra: CarritoComprarBase, db: Session = Depends(get_db)):
+    return crear_carrito_compra(db, carrito_compra)
+
+# rutas para envio
+
+@router.post("/envios")
+def create_new_envio(envio: envio, db: Session = Depends(get_db)):
+    return crear_envio(db, envio)
+
+
+# ************************* RUTA PAGO STRIPE ********************** 
+@router.post("/order/payment")
+def create_payment():
+    return "Hola mundo"
