@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
+from fastapi.responses import HTMLResponse
 
 from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
 
 from sqlalchemy.orm import Session
 from shared.database.db import get_db
 from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import create_checkout_session
 
 router = APIRouter()
 
@@ -70,3 +72,23 @@ def create_new_envio(envio: envioBase, db: Session = Depends(get_db)):
 @router.post("/order/payment")
 def create_payment():
     return "Hola mundo"
+
+
+@router.post("/create-checkout-session")
+async def create_checkout_session_route():
+    return create_checkout_session()
+
+
+@router.get("/success", response_class=HTMLResponse)
+async def success_page():
+    return """
+    <html>
+        <head>
+            <title>Éxito</title>
+        </head>
+        <body>
+            <h1>¡Pago exitoso!</h1>
+            <p>Gracias por realizar el pago.</p>
+        </body>
+    </html>
+    """

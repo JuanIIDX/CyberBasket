@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session, joinedload
 from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
 import stripe
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.responses import JSONResponse,RedirectResponse
 
 def get_ordenes(db: Session):
     return db.query(Orden).all()
@@ -71,6 +73,9 @@ def crear_envio(db: Session, envio_data: envioBase):
     return envio_model  
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
+stripe.api_key = "sk_test_51NruCXAamYG5Eomr3Zxj6kAyk7yP8t8DrhZJVthl1L0YNXX1q5PkVo695LRJ318zX96MAg6vp0pYKE2ExxpdVWo600VMJ3m0LH"
+
+YOUR_DOMAIN = "http://localhost:8000"
 
 def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     carrito_compra_model = Carrito_Compra(**carrito_compra.dict())
@@ -85,6 +90,41 @@ def get_carrito_compra(db: Session, carrito_compra_id: int):
 
 def get_user_cart(db: Session, user_id: int):
      return db.query().options(joinedload(Carrito_Compra.user), joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.user_id == user_id).all()
+
+
+async def create_payment_session_stripe(db: Session, orden: OrderBase):
+    try:
+     print(orden)
+     price = OrderBase(**orden.dict())
+     checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "usd",
+                        "unit_amount": int(price.price) * 100,
+                        "product_data": {
+                            "name": price.product.name,
+                            "description": price.product.desc,
+                            "images": [
+                            ],
+                        },
+                    },
+                    "quantity": price.product.quantity,
+                }
+            ],
+            metadata={"product_id": price.product.id},
+            mode="payment",
+            success_url="",
+            cancel_url="",
+        )
+     return checkout_session
+    except Exception as e:
+        print(e)
+        return None
+    
+    
+
 
 def create_order_stripe(db: Session, orden: OrderBase):
     carrito = get_user_cart(db, orden.user_id)
@@ -110,3 +150,30 @@ def create_order_stripe(db: Session, orden: OrderBase):
 
 def payment_intent_stripe():
     pass
+
+# funciona
+def create_checkout_session():
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Intro to Django Course',
+                    },
+                    'unit_amount': 10000,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '/success',
+            cancel_url=YOUR_DOMAIN + '/cancel',
+        )
+        return {"url": session.url}
+    
+    
+    except stripe.error.StripeError as e:
+        # Maneja errores de Stripe
+        raise HTTPException(status_code=400, detail=str(e))
+    
