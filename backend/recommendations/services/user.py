@@ -1,9 +1,10 @@
 import shutil
-from utils.connection_client import get_recombee_cliente
+# from utils.connection_client import get_recombee_cliente 
+from ..utils.connection_client import get_recombee_cliente
 from fastapi import UploadFile, File
-from models.model import UserBase
+from ..models.model import UserBase
 from recombee_api_client.api_client import RecombeeClient
-from recombee_api_client.api_requests import AddUser, SetUserValues,GetUserValues,DeleteUser,ListUsers,Batch
+from recombee_api_client.api_requests import SetUserValues,GetUserValues,DeleteUser,ListUsers,Batch
 import pandas as pd
 import tempfile
 from tabulate import tabulate
@@ -19,11 +20,6 @@ class UserService:
         self.used_emails = set()
 
 
-    def get_user(self, user_id):
-        return self._user_repository.get_user(user_id)
-
-  
-    
     def user_exists(self, user_id):
         # Verificar si el usuario ya existe
         try:
@@ -38,9 +34,9 @@ class UserService:
         return email in self.used_emails
 
         
-    def create_user(self, user):
-        user_id = user.user_id
-        email = user.email
+    def create_user(self, user: UserBase):
+        user_id = user['user_id']
+        email = user['email']
 
         if self.user_exists(user_id):
             print(f"El usuario con user_id {user_id} ya existe. No se creará nuevamente.")
@@ -52,9 +48,9 @@ class UserService:
         request = SetUserValues(
         user_id=user_id,
         values={
-            'name': user.name,
+            'name': user['name'],
             'email': email,
-            'last_name': user.last_name,
+            'last_name': user['last_name'],
             # Add any other properties here
         },
         cascade_create=True  # This will create the user if it doesn't exist

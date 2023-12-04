@@ -1,30 +1,63 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from shared.models.user import User
+from tienda.models.models_database import Producto, Tienda
 
 Base = declarative_base()
     
-    
+#DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
 class Orden(Base):
-    __tablename__ = "orden"
-    id = Column('ID_OrdenPro', Integer, primary_key=True)
-    id_pago = Column('ID_Pago', Integer, ForeignKey('pago.ID_Pago'), nullable=False)
-    id_envio = Column('ID_Envio', Integer, ForeignKey('envio.ID_Envio'))
-    impuesto = Column('Impuesto', Float, nullable=False)
-    estado = Column('Estado', String(10), nullable=False)
-    fecha_creacion = Column('Fecha_Creacion', Date, nullable=False)
-    fecha_actualizacion = Column('Fecha_Actualizacion', Date, nullable=False)
-    pago = relationship('Pago')
-    envio = relationship('Envio')
+    __tablename__ = "Orden"
+    id_orden = Column(Integer, primary_key=True)
+    id_tienda = Column(Integer,ForeignKey(Tienda.id_tienda), nullable=True)
+    id_user = Column( Integer,ForeignKey(User.id), nullable=True)   
+    impuesto = Column(Float, nullable=False)
+    estado = Column('estado', String(10), nullable=True,default='pendiente')
+    fecha_creacion = Column('fecha_creacion', Date, nullable=False)
+    fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
+    id_envio = Column(Integer, ForeignKey('Envio.id_envio'))
+    id_pago = Column(Integer, ForeignKey('Pagos.id_pago'))
 
+    Detalle_Orden = relationship('Detalle_Orden', back_populates='orden')
+    envio = relationship('envio')
 
 class Detalle_Orden(Base):
-    __tablename__ = "detalle_orden"
-    id = Column('ID_DetalleOrd', Integer, primary_key=True)
-    orden_id = Column('ID_OrdenPro', Integer, ForeignKey('orden.ID_OrdenPro'))
-    producto_id = Column('ID_Producto', Integer, ForeignKey('producto.ID_Producto'))
-    cantidad = Column('Cantidad', Integer)
-    precio_unitario = Column('Precio_Unitario', Float)
-    orden = relationship('Orden', back_populates='detalle_ordenes')
-    producto = relationship('Producto', back_populates='detalle_ordenes')
-    Orden.detalle_ordenes = relationship('Detalle_Orden', back_populates='orden')
+    __tablename__ = "Detalle_orden"
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    id_orden = Column(Integer, ForeignKey('Orden.id_orden'))
+    producto_id = Column(Integer,ForeignKey(Producto.id_producto))
+    cantidad = Column(Integer)
+    precio_unitario = Column(Float)
+    orden = relationship('Orden',back_populates='Detalle_Orden') 
+    #producto = relationship(Producto)
+
+
+class Carrito_Compra(Base):
+    __tablename__ = "Carrito_Compras"
+    id_carrito = Column(Integer, primary_key=True,autoincrement=True)
+    id_producto = Column(Integer, ForeignKey(Producto.id_producto))
+    id_user = Column(Integer, ForeignKey(User.id))
+    cantidad = Column(Integer)
+    precio_unitario = Column(Float)
+    estado = Column('estado', String(10), nullable=False,default='pendiente')
+
+    #user = relationship(User)
+    
+class envio(Base):
+    __tablename__ = "Envio"
+    id_envio = Column(Integer, primary_key=True,autoincrement=True)
+    costo = Column(Float)
+    descripcion = Column(String(200))
+    estado = Column('estado', String(10), nullable=False,default='pendiente')
+    numero_envio = Column(String(200))
+    orden = relationship('Orden')
+    
+class pago(Base):
+    __tablename__ = "Pagos"
+    id_pago = Column(Integer, primary_key=True,autoincrement=True)
+    tipo_pago = Column(String(200))
+    monto = Column(Float)
+    estado = Column('estado', String(100), nullable=False,default='pendiente')
+    fecha_creacion = Column('fecha_creacion', Date, nullable=False)
+    orden = relationship('Orden')

@@ -1,19 +1,16 @@
 # app/routes/recombee.py
 from fastapi import APIRouter, Body, UploadFile, File,Response
-from models.model import UserBase
-from services.recommendation import RecombeeService
-from services.user import UserService
-from services.item import ItemService   
+from ..models.model import *
+from ..services.recommendation import RecombeeService
+from ..services.user import UserService
+from ..services.item import *
 import json
 
 router = APIRouter()
-service = RecombeeService()
+service_recomendation = RecombeeService()
 service_user = UserService()
 service_item = ItemService()
 
-@router.get("/recommendations/{user_id}")
-async def get_recommendations_to_user(user_id: str,count: int = 10):
-    return service.get_recommendations(user_id, count)
 
 @router.post("/users/")
 async def create_user(user: UserBase = Body(...)):
@@ -49,11 +46,15 @@ async def get_all_items():
 async def get_item_by_id(item_id: str):
     return service_item.get_item(item_id)
 
-# def track_item_view(self, user_id: str, item_id: str):
-#         request = AddDetailView(user_id, item_id)
-#         self.client.send(request)
 
-#     def recommend_based_on_views(self, user_id: str, count: int):
-#         request = RecommendItemsToUser(user_id, count)
-#         recommendations = self.client.send(request)
-#         return recommendations
+@router.post("/add_detail_view")
+async def add_detail_view(user_id: str, item_id: str):
+    service_recomendation.add_detail_view(user_id, item_id)
+    return {"message": "Detail view added successfully"}
+
+
+@router.get("/recommendations/{user_id}")
+async def get_recommendations(user_id: str):
+    resp = service_recomendation.get_recommendations(user_id, 5)
+    return resp
+

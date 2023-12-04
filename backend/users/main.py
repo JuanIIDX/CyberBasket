@@ -1,11 +1,13 @@
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from fastapi import FastAPI, HTTPException
 from fastapi_pagination import Page, add_pagination
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from recommendations.services.user import UserService
+user_service = UserService()
 
 from shared.database.db import get_db
 from shared.schemas import users as user_schema
@@ -27,10 +29,9 @@ def get_user_directions(user_id: int, db: Session = Depends(get_db)):
 @users_router.post("/")
 def create_user(user: user_schema.UserCreation, db: Session = Depends(get_db)):
     user_created = users_controller.create_user(db=db, new_user=user)
-
+    users_controller.sync_user_recombee(user_created)
     response = sign_jwt(user_created)
     response["user"] = user_created.model_dump(mode="json")
-
     return response
 
 @users_router.post("/login")

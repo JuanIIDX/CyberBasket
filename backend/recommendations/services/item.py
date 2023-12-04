@@ -1,5 +1,5 @@
-from models.model import ItemBase
-from utils.connection_client import get_recombee_cliente
+from ..models.model import ItemBase
+from ..utils.connection_client import get_recombee_cliente
 from recombee_api_client.api_client import RecombeeClient
 from recombee_api_client.api_requests import GetItemValues, SetItemValues,RecommendItemsToUser,DeleteItem,ListItems,Batch
 class ItemService:
