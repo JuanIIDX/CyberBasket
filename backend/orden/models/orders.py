@@ -7,7 +7,7 @@ Base = declarative_base()
 #DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
 class Orden(Base):
     __tablename__ = "Orden"
-    id_orden = Column(Integer, primary_key=True)
+    id_orden = Column(Integer, primary_key=True,autoincrement=True)
     cliente_info = Column(String(200), nullable=False)
     numero_envio = Column(String(200), nullable=False)
     total_orden = Column(Float, nullable=False)
@@ -19,15 +19,14 @@ class Orden(Base):
     fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
     id_envio = Column(Integer, ForeignKey('envio.id_envio'))
     id_pago = Column(Integer, ForeignKey('pago.id_pago'))
-
     Detalle_Ordenes = relationship('Detalle_Orden', back_populates='orden')
 
 
 
 class Detalle_Orden(Base):
     __tablename__ = "Detalle_Orden"
-    id = Column('id', Integer, primary_key=True,autoincrement=True)
-    id_orden = Column(Integer, ForeignKey('ordenes.id'))
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    id_orden = Column(Integer, ForeignKey('Orden.id_orden'))
     producto_id = Column(Integer,ForeignKey('productos.id_producto'))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
