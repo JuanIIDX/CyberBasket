@@ -12,7 +12,7 @@ class OrderBase(BaseModel):
     fecha_creacion: date
     fecha_actualizacion: date
     id_tienda: Optional[int] = None
-    id_cliente: Optional[int] = None
+    id_user: Optional[int] = None
 
 
 class OrderDetailBase(BaseModel):
@@ -23,7 +23,7 @@ class OrderDetailBase(BaseModel):
 
 class CarritoComprarBase(BaseModel):
     id_producto: int
-    user_id: int
+    id_user: int
     cantidad: int
     precio_unitario: float
     estado: str
