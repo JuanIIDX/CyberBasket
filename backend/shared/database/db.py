@@ -21,7 +21,6 @@ engine = create_engine(DATABASE_URL, echo=True, future=True)
 # Crea el motor de base de datos y la sesión de SQLAlchemy
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 print("database connected successfully!")
 
 def get_db():

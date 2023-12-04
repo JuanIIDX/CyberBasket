@@ -6,29 +6,38 @@ Base = declarative_base()
     
 #DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
 class Orden(Base):
-    __tablename__ = "orden"
-    id = Column('id', Integer, primary_key=True)
-    id_pago = Column('id_Pago', Integer,  nullable=True)
-    id_envio = Column('id_Envio', Integer, nullable=True)   
-    # id_pago = Column('id_Pago', Integer, ForeignKey('pago.ID_Pago'), nullable=False)
-    # id_envio = Column('id_Envio', Integer, ForeignKey('envio.ID_Envio'))
-    impuesto = Column('impuesto', Float, nullable=False)
-    estado = Column('estado', String(10), nullable=False)
+    __tablename__ = "ordenes"
+    id_orden = Column(Integer, primary_key=True)
+    cliente_info = Column(String(200), nullable=False)
+    numero_envio = Column(String(200), nullable=False)
+    total_orden = Column(Float, nullable=False)
+    id_tienda = Column(Integer,ForeignKey('tienda.id_tienda'), nullable=True)
+    id_user = Column( Integer,ForeignKey('users.id'), nullable=True)   
+    impuesto = Column(Float, nullable=False)
+    estado = Column('estado', String(10), nullable=True,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
     fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
-    # pago = relationship('Pago')
-    # envio = relationship('Envio')
- #   detalle_ordenes = relationship('Detalle_Orden', back_populates='orden')
+    Detalle_Ordenes = relationship('Detalle_Orden', back_populates='orden')
+
 
 class Detalle_Orden(Base):
-    __tablename__ = "Detalle_orden"
-    id = Column('id', Integer, primary_key=True)
-    orden_id = Column('orden_id', Integer, ForeignKey('orden.id'))
-    producto_id = Column('producto_id', Integer)
-    #producto_id = Column('producto_id', Integer, ForeignKey('producto.producto_id'))
-    cantidad = Column('cantidad', Integer)
-    precio_unitario = Column('precio_unitario', Float)
-    #orden = relationship('Orden') 
-    #producto = relationship('Producto')
-    
-#Orden.detalle_orden = relationship('Detalle_Orden', back_populates='orden')
+    __tablename__ = "Detalle_Ordenes"
+    id_detalle_orden = Column('id', Integer, primary_key=True,autoincrement=True)
+    orden_id = Column(Integer, ForeignKey('ordenes.id'))
+    producto_id = Column(Integer,ForeignKey('productos.id_producto'))
+    cantidad = Column(Integer)
+    precio_unitario = Column(Float)
+    orden = relationship('Orden',back_populates='Detalle_Ordenes') 
+    producto = relationship('Producto')
+
+
+class Carrito_Compra(Base):
+    __tablename__ = "Carrito_Compras"
+    id_carrito = Column(Integer, primary_key=True,autoincrement=True)
+    producto_id = Column(Integer, ForeignKey('productos.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    cantidad = Column(Integer)
+    precio_unitario = Column(Float)
+    estado = Column('estado', String(10), nullable=False,default='pendiente')
+    producto = relationship('Producto')
+    user = relationship('User')

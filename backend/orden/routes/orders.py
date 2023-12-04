@@ -52,3 +52,7 @@ def update_new_detalle_orden(detalle_orden_id: int, detalle_orden: OrderDetailBa
 def delete_new_detalle_orden(detalle_orden_id: int, db: Session = Depends(get_db)):
     return delete_detalle_orden(db, detalle_orden_id)
 
+# ************************* RUTA PAGO STRIPE ********************** 
+@router.post("/order/payment")
+def create_payment():
+    return "Hola mundo"
