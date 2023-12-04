@@ -22,7 +22,7 @@ class OrderDetailBase(BaseModel):
     precio_unitario: float
 
 class CarritoComprarBase(BaseModel):
-    producto_id: int
+    id_producto: int
     user_id: int
     cantidad: int
     precio_unitario: float

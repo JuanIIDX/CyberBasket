@@ -1,10 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
-<<<<<<< HEAD
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase,envioBase
-=======
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
->>>>>>> 146e391d0d12766f82da093d1c888268d3a4527f
 import stripe
 
 def get_ordenes(db: Session):
