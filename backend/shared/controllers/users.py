@@ -1,3 +1,7 @@
+# The line `return users_controller.fetch_user_directions_by_id(db=db, user_id=user_id)` is
+# calling the `fetch_user_directions_by_id` function from the `users_controller` module. This
+# function is responsible for fetching the directions associated with a specific user from the
+# database.
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -6,6 +10,9 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from ..schemas import users as user_schema
 from ..models import user as user_models
 from ..auth.passwords import hash_password
+from recommendations.services.user import UserService
+
+user_service = UserService() 
 
 def fetch_user_by_id(db:Session, user_id: int) -> user_schema.UserResponse:
   user = db.query(user_models.User).filter(user_models.User.id == user_id).first()
@@ -57,3 +64,17 @@ def fetch_user_directions_by_id(db:Session, user_id: int):
     user_directions,
     transformer=lambda items: [user_schema.UserDirectionsResponse(**i.__dict__) for i in items],
   )
+
+
+
+def sync_user_recombee(user):
+    count = len(user_service.get_all_usersId()) + 1
+    user_recombe = {
+        "user_id": str(count),
+        "name": user.name,
+        "email": user.email,
+        "last_name": user.last_name,
+    }
+    user_service.create_user(user_recombe)
+    
+  
