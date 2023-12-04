@@ -41,3 +41,14 @@ class Carrito_Compra(Base):
     estado = Column('estado', String(10), nullable=False,default='pendiente')
     producto = relationship('Producto')
     user = relationship('User')
+
+
+class Pago(Base):
+    __tablename__ = "pagos"
+    id_pago = Column(Integer, primary_key=True,autoincrement=True)
+    id_orden = Column(Integer, ForeignKey('ordenes.id'))
+    monto = Column(Float)
+    fecha_creacion = Column('fecha_creacion', Date, nullable=False)
+    fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
+    orden = relationship('Orden')
+    user = relationship('User')

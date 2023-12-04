@@ -8,7 +8,7 @@ class OrderBase(BaseModel):
     cliente_info: str
     numero_envio: str
     total_orden: float
-    id_tienda: Optional[int] = None
+    id_tienda: int
     id_cliente: Optional[int] = None
     impuesto: float
     estado: str
