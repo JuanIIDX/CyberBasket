@@ -18,6 +18,8 @@ class Orden(Base):
     fecha_actualizacion = Column('fecha_actualizacion', Date, nullable=False)
     # pago = relationship('Pago')
     # envio = relationship('Envio')
+    #id_tienda
+    #id_usuario
  #   detalle_ordenes = relationship('Detalle_Orden', back_populates='orden')
 
 class Detalle_Orden(Base):
