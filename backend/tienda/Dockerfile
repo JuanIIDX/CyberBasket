@@ -17,6 +17,6 @@ ENV DATABASE_NAME="CyberBasket-Database"
 ENV DATABASE_USER="Administrador"
 ENV DATABASE_PASSWORD="admin68000!"
 
-EXPOSE 3100
+EXPOSE 3101
 
 CMD ["gunicorn", "main:app"]
