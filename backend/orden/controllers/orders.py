@@ -1,10 +1,11 @@
 from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
 import stripe
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse,RedirectResponse
+#from tienda.models.models_database import Producto
 from dotenv import load_dotenv
 import os
 
@@ -90,8 +91,6 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     db.refresh(carrito_compra_model)
     return carrito_compra_model
 
-def get_carrito_compra(db: Session, carrito_compra_id: int):
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id == carrito_compra_id).first()
 
 
 def get_user_cart(db: Session, user_id: int):
@@ -121,8 +120,6 @@ def create_order_stripe(db: Session, orden: OrderBase):
 
 
 
-def payment_intent_stripe():
-    pass
 
 # funciona
 def create_checkout_session(order_id: int,db):
