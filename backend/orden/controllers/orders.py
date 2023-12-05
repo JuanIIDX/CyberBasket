@@ -1,3 +1,4 @@
+from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
 from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
@@ -79,8 +80,9 @@ def crear_envio(db: Session, envio_data: envioBase):
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
-YOUR_DOMAIN = os.environ.get("YOUR_DOMAIN")
 
+YOUR_DOMAIN = os.environ.get("YOUR_DOMAIN")
+#cambiar la llave de stripe
 
 def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     carrito_compra_model = Carrito_Compra(**carrito_compra.dict())
@@ -94,11 +96,6 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
 def get_user_cart(db: Session, user_id: int):
     return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
 
-def get_user_cart(user_id: int,db: Session):
-    return db.query().options(joinedload(Carrito_Compra.id_user)).filter(Carrito_Compra.id_user == user_id).all()
-
-
-    
 
 
 def create_order_stripe(db: Session, orden: OrderBase):
@@ -140,8 +137,6 @@ def create_checkout_session(order_id: int,db):
                         'product_data': {
                         'name': producto.nombre,
                         },
-                     # stripe maneja las cantidades en de dinerno en la unidad mas
-                     # pequeña de la moneda, en este caso centavos de dolar
                      'unit_amount': int(producto.precio * 100),  # Convertir a centavos
                 },
                      'quantity': item.cantidad
@@ -155,7 +150,7 @@ def create_checkout_session(order_id: int,db):
             line_items=productos_para_checkout,
             mode='payment',
             success_url=YOUR_DOMAIN + '/orden/success',
-            cancel_url=YOUR_DOMAIN + '/orden/cancel',
+            cancel_url=YOUR_DOMAIN + '/cancel',
         )
         return {"url": session.url}
     

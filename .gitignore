@@ -112,7 +112,6 @@ venv.bak/
 .idea/
 
 # VSCode related
-.vscode/
 
 # Jupyter Notebook
 .ipynb_checkpoints

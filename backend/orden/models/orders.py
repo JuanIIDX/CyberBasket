@@ -41,6 +41,9 @@ class Carrito_Compra(Base):
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
     estado = Column('estado', String(10), nullable=False,default='pendiente')
+
+    producto = relationship("Producto")
+    #user = relationship(User)
     
 class envio(Base):
     __tablename__ = "Envio"
