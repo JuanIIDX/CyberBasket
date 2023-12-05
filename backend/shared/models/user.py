@@ -19,6 +19,7 @@ class User(Base):
   role = relationship("Role", back_populates="users")
   directions = relationship("UserDirections", back_populates="user")
 
+
 class Role(Base):
   __tablename__ = "roles"
 
