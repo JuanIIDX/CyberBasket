@@ -5,7 +5,7 @@ from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase,
 
 from sqlalchemy.orm import Session
 from shared.database.db import get_db
-from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
 from orden.controllers.orders import create_checkout_session
 
 router = APIRouter()
@@ -67,6 +67,11 @@ def create_new_carrito_compra(carrito_compra: CarritoComprarBase, db: Session = 
 def create_new_envio(envio: envioBase, db: Session = Depends(get_db)):
     return crear_envio(db, envio)
 
+#ruta get_user_cart
+@router.get("/carrito_compras/user/{id_user}")
+def read_user_cart(id_user: int, db: Session = Depends(get_db)):
+    return get_user_cart(db, id_user)
+
 
 # ************************* RUTA PAGO STRIPE ********************** 
 @router.post("/order/payment")
@@ -75,8 +80,8 @@ def create_payment():
 
 
 @router.post("/create-checkout-session")
-async def create_checkout_session_route():
-    return create_checkout_session()
+async def create_checkout_session_route(order_id:int, db: Session = Depends(get_db)):
+    return create_checkout_session(order_id,db)
 
 
 @router.get("/success", response_class=HTMLResponse)
