@@ -1,15 +1,20 @@
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
 import stripe
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse,RedirectResponse
+#from tienda.models.models_database import Producto
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def get_ordenes(db: Session):
     return db.query(Orden).all()
 
 def get_orden(db: Session, orden_id: int):
-    return db.query(Orden).filter(Orden.id == orden_id).first()
+    return db.query(Orden).filter(Orden.id_orden == orden_id).first()
 
 def create_orden(db: Session, orden: OrderBase):
     orden_model = Orden(**orden.dict())
@@ -19,7 +24,7 @@ def create_orden(db: Session, orden: OrderBase):
     return orden_model
 
 def update_orden(db: Session, orden_id: int, orden: OrderBase):
-    db_orden = db.query(Orden).filter(Orden.id == orden_id).first()
+    db_orden = db.query(Orden).filter(Orden.id_orden == orden_id).first()
     if db_orden:
         for key, value in orden.dict().items():
             setattr(db_orden, key, value)
@@ -29,7 +34,7 @@ def update_orden(db: Session, orden_id: int, orden: OrderBase):
     return orden_update
 
 def delete_orden(db: Session, orden_id: int):
-    orden = db.query(Orden).filter(Orden.id == orden_id).first()
+    orden = db.query(Orden).filter(Orden.id_orden == orden_id).first()
     db.delete(orden)
     db.commit()
 
@@ -73,9 +78,9 @@ def crear_envio(db: Session, envio_data: envioBase):
     return envio_model  
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
-stripe.api_key = "sk_test_51NruCXAamYG5Eomr3Zxj6kAyk7yP8t8DrhZJVthl1L0YNXX1q5PkVo695LRJ318zX96MAg6vp0pYKE2ExxpdVWo600VMJ3m0LH"
+stripe.api_key = os.environ.get("STRIPE_API_KEY")
+YOUR_DOMAIN = os.environ.get("YOUR_DOMAIN")
 
-YOUR_DOMAIN = "http://localhost:8000"
 
 def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     carrito_compra_model = Carrito_Compra(**carrito_compra.dict())
@@ -84,45 +89,15 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     db.refresh(carrito_compra_model)
     return carrito_compra_model
 
-def get_carrito_compra(db: Session, carrito_compra_id: int):
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id == carrito_compra_id).first()
 
 
 def get_user_cart(db: Session, user_id: int):
-     return db.query().options(joinedload(Carrito_Compra.user), joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.user_id == user_id).all()
+    return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
+
+def get_user_cart(user_id: int,db: Session):
+    return db.query().options(joinedload(Carrito_Compra.id_user)).filter(Carrito_Compra.id_user == user_id).all()
 
 
-async def create_payment_session_stripe(db: Session, orden: OrderBase):
-    try:
-     print(orden)
-     price = OrderBase(**orden.dict())
-     checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": "usd",
-                        "unit_amount": int(price.price) * 100,
-                        "product_data": {
-                            "name": price.product.name,
-                            "description": price.product.desc,
-                            "images": [
-                            ],
-                        },
-                    },
-                    "quantity": price.product.quantity,
-                }
-            ],
-            metadata={"product_id": price.product.id},
-            mode="payment",
-            success_url="",
-            cancel_url="",
-        )
-     return checkout_session
-    except Exception as e:
-        print(e)
-        return None
-    
     
 
 
@@ -148,30 +123,41 @@ def create_order_stripe(db: Session, orden: OrderBase):
 
 
 
-def payment_intent_stripe():
-    pass
 
 # funciona
-def create_checkout_session():
+def create_checkout_session(order_id: int,db):
     try:
+        query = db.query(Orden).filter(Orden.id_orden == order_id).first()
+        cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == query.id_user).all()
+        print(len(cart))
+        productos_para_checkout = []
+        for item in cart:
+            productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
+            for producto in productoxcarrito:
+                producto_dict = {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                        'name': producto.nombre,
+                        },
+                     # stripe maneja las cantidades en de dinerno en la unidad mas
+                     # pequeña de la moneda, en este caso centavos de dolar
+                     'unit_amount': int(producto.precio * 100),  # Convertir a centavos
+                },
+                     'quantity': item.cantidad
+                 }
+                productos_para_checkout.append(producto_dict)
+                
+        print("Productos")
+        print(len(productos_para_checkout),productos_para_checkout)
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': 'Intro to Django Course',
-                    },
-                    'unit_amount': 10000,
-                },
-                'quantity': 1,
-            }],
+            line_items=productos_para_checkout,
             mode='payment',
-            success_url=YOUR_DOMAIN + '/success',
-            cancel_url=YOUR_DOMAIN + '/cancel',
+            success_url=YOUR_DOMAIN + '/orden/success',
+            cancel_url=YOUR_DOMAIN + '/orden/cancel',
         )
         return {"url": session.url}
-    
     
     except stripe.error.StripeError as e:
         # Maneja errores de Stripe

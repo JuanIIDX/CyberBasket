@@ -75,8 +75,8 @@ def create_payment():
 
 
 @router.post("/create-checkout-session")
-async def create_checkout_session_route():
-    return create_checkout_session()
+async def create_checkout_session_route(order_id:int, db: Session = Depends(get_db)):
+    return create_checkout_session(order_id,db)
 
 
 @router.get("/success", response_class=HTMLResponse)
