@@ -8,19 +8,16 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.include_router(routers.router, tags=["Productos"])
 
-origins = [
-    "https://127.0.0.1:4200",
-    "http://127.0.0.1:4200"
-]
+"""Modificar luego el origins"""
+
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=['*'],
+    expose_headers=["*"]
 )
 
 @app.get("/", tags=["Main"])
 def main():
-    return {"message": "test1"}
+    return {"message": "test7"}

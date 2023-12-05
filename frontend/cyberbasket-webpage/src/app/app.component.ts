@@ -14,18 +14,8 @@ export class AppComponent {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.getDatos();
+    
   }
 
-  getDatos() {
-    this.http.get<any[]>('http://127.0.0.1:8000/producto').subscribe(
-      (res: any[]) => {
-        this.datos = res;
-        console.log(this.datos);
-      },
-      (err: Error) => {
-        console.log(err);
-      }
-    );
-  }
+
 }
