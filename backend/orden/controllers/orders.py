@@ -1,7 +1,7 @@
-from tienda.models.models_database import Producto
+# from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
+from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
+from schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
 import stripe
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse,RedirectResponse
