@@ -1,0 +1,10 @@
+.main {
+  /*i want to center this vertical and horizontally*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  margin-top: 15em;
+}
