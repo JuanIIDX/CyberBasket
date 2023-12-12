@@ -94,9 +94,8 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
 
 
 def get_user_cart(db: Session, user_id: int):
-    return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
-
-
+   # return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
+    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
 def create_order_stripe(db: Session, orden: OrderBase):
     carrito = get_user_cart(db, orden.user_id)
