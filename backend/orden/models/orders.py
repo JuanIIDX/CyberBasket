@@ -19,6 +19,7 @@ class Producto(Base ):
     fecha_creacion=Column(DateTime)
     fecha_actualizacion=Column(DateTime)
 
+
 class Tienda(Base):
     __tablename__='tienda'
     id_tienda = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -101,6 +102,7 @@ class Carrito_Compra(Base):
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
     estado = Column('estado', String(10), nullable=False,default='pendiente')
+    #producto = relationship('Producto', back_populates='carrito_compra')
     #user = relationship(User)
     
 class envio(Base):

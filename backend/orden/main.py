@@ -7,3 +7,7 @@ from  routes.orders import router
 
 app = FastAPI()
 app.include_router(router, prefix="/orden")
+
+@app.get("/", tags=["Main"])
+def main():
+    return {"message": "Hello cyberbasket"}
