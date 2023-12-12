@@ -27,7 +27,8 @@ def get_user_directions(user_id: int, db: Session = Depends(get_db)):
 @users_router.post("/")
 def create_user(user: user_schema.UserCreation, db: Session = Depends(get_db)):
     user_created = users_controller.create_user(db=db, new_user=user)
-    users_controller.sync_user_recombee(user_created)
+    # FIXME: Uncomment this line to sync the user with recombee
+    # users_controller.sync_user_recombee(user_created)
     response = sign_jwt(user_created)
     response["user"] = user_created.model_dump(mode="json")
     return response
