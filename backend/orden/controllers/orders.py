@@ -100,11 +100,10 @@ def get_user_cart(db: Session, user_id: int):
 
 def create_order_stripe(db: Session, orden: OrderBase):
     carrito = get_user_cart(db, orden.user_id)
-    impuesto = orden.impuesto
     subtotal = sum(item.cantidad * item.precio_unitario for item in carrito) 
     total = subtotal
     # Crear la orden
-    orden_model = Orden(total)
+    orden_model = Orden(total,estado='pendiente')
     db.add(orden_model)
     db.commit()
     db.refresh(orden_model)
@@ -157,4 +156,112 @@ def create_checkout_session(order_id: int,db):
     except stripe.error.StripeError as e:
         # Maneja errores de Stripe
         raise HTTPException(status_code=400, detail=str(e))
-    
+
+## ENFOQUE 2
+
+# def create_order_stripe(db: Session, order_info: OrderBase):
+#     # Verifica si se proporcionó un carrito de compras o un producto directo
+#     if order_info.cart_items:
+#         # Caso: Proviene de un carrito de compras
+#         subtotal = sum(item.quantity * item.price for item in order_info.cart_items)
+#         total = subtotal
+#     elif order_info.product_id:
+#         # Caso: Proviene de un producto directo
+#         product_info = get_product_info(db, order_info.product_id)
+#         total = product_info.price * order_info.quantity
+#     else:
+#         # Error: No se proporcionó ni carrito ni producto
+#         raise ValueError("Se requiere información de carrito o producto directo para crear una orden.")
+
+#     # Crear la orden
+#     orden_model = Orden(total, estado='pendiente')
+#     db.add(orden_model)
+#     db.commit()
+#     db.refresh(orden_model)
+
+#     # Crear detalles de orden
+#     if order_info.cart_items:
+#         for item in order_info.cart_items:
+#             detalle_orden_dict = {
+#                 "orden_id": orden_model.id,
+#                 "producto_id": item.product_id,
+#                 "cantidad": item.quantity,
+#                 "precio_unitario": item.price
+#             }
+#             create_detalle_orden(db, detalle_orden_dict)
+#     elif order_info.product_id:
+#         detalle_orden_dict = {
+#             "orden_id": orden_model.id,
+#             "producto_id": order_info.product_id,
+#             "cantidad": order_info.quantity,
+#             "precio_unitario": product_info.price
+#         }
+#         create_detalle_orden(db, detalle_orden_dict)
+
+#     return orden_model
+
+
+import stripe
+from fastapi import FastAPI, HTTPException
+
+app = FastAPI()
+
+# Configura tu clave secreta de Stripe
+stripe.api_key = "tu_clave_secreta_de_stripe"
+
+def crear_sesion_pago(line_items):
+    try:
+        # Crea una sesión de pago con Stripe Checkout
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url='https://tu-sitio.com/pago-exitoso',
+            cancel_url='https://tu-sitio.com/pago-cancelado',
+        )
+        return {"url": session.url}
+    except Exception as e:
+        # Manejar errores
+        raise HTTPException(status_code=500, detail=str(e))
+
+# @app.post("/crear_sesion_pago_producto/{producto_id}")
+# async def crear_sesion_pago_producto(producto_id: int):
+#     # Lógica para obtener información del producto desde la base de datos
+#     producto = {"id_producto": producto_id, "nombre": "Producto 1", "precio": 500}
+
+#     # Crea una lista de artículos para la sesión de pago
+#     line_items = [{
+#         'price_data': {
+#             'currency': 'usd',
+#             'product_data': {
+#                 'name': producto['nombre'],
+#             },
+#             'unit_amount': int(producto['precio'] * 100),  # Convierte el precio a centavos
+#         },
+#         'quantity': 1,
+#     }]
+
+#     return crear_sesion_pago(line_items)
+
+# @app.post("/crear_sesion_pago_carrito/{user_id}")
+# async def crear_sesion_pago_carrito(user_id: int):
+#     # Lógica para obtener los productos del carrito desde la base de datos
+#     productos_en_carrito = [
+#         {"id_producto": 1, "nombre": "Producto 1", "precio": 500},
+#         {"id_producto": 2, "nombre": "Producto 2", "precio": 700},
+#         # ... puedes tener más productos
+#     ]
+
+#     # Crea una lista de artículos para la sesión de pago
+#     line_items = [{
+#         'price_data': {
+#             'currency': 'usd',
+#             'product_data': {
+#                 'name': producto['nombre'],
+#             },
+#             'unit_amount': int(producto['precio'] * 100),  # Convierte el precio a centavos
+#         },
+#         'quantity': 1,
+#     } for producto in productos_en_carrito]
+
+#     return crear_sesion_pago(line_items)

@@ -39,3 +39,17 @@ class pagoBase(BaseModel):
     monto: float
     estado: str
     fecha_creacion: date
+
+
+
+class CartItem(BaseModel):
+    product_id: int
+    quantity: int
+    price: float
+    user_id: int
+
+class OrderInfo(BaseModel):
+    user_id: int  # Puedes ajustar los campos según tus necesidades
+    product_id: int = None  # Producto directo (opcional)
+    quantity: int = 1  # Cantidad de productos (por defecto 1)
+    cart_items: List[CartItem] = None  # Carrito de compras (opcional)
