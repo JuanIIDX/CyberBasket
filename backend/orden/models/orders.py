@@ -125,4 +125,9 @@ class pago(Base):
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
     orden = relationship('Orden')
 
-
+class Inventario(Base):
+    __tablename__ = "Inventario"
+    id_inventario=Column(Integer, primary_key=True,autoincrement=True)
+    id_tienda=Column(Integer, ForeignKey("tienda.id_tienda"))
+    id_producto=Column(Integer, ForeignKey("producto.id_producto"))
+    cantidad=Column(Integer)
