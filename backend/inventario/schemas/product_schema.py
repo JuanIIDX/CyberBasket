@@ -21,3 +21,39 @@ class Product_Schema(BaseModel):
     descripcion: str
     precio: float
 
+
+
+
+class Products_Home(BaseModel):
+    nombre: str
+    cantidad: int
+
+
+##Esquemas para los datos de la pagina de inicio
+class test(BaseModel):
+    nombre: str
+    descripcion: str
+
+class datos_producto_home(BaseModel):
+    num_productos: int
+    num_paginas: int
+    pagina_actual: int
+    offset: int
+    limite: int
+    productos: list[test]
+
+##Esquemas para la pagina de producto
+
+
+
+
+##Esquemas para el dashboard del usuario
+
+
+
+
+
+
+
+
+
