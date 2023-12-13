@@ -13,6 +13,18 @@ class OrderBase(BaseModel):
     fecha_actualizacion: date
     id_tienda: Optional[int] = None
     id_user: Optional[int] = None
+    
+    
+class OrderUpdateBase(BaseModel):
+    id_orden : int
+    id_pago: Optional[int] = None
+    id_envio: Optional[int] = None
+    impuesto: float
+    estado: str
+    fecha_creacion: date
+    fecha_actualizacion: date
+    id_tienda: Optional[int] = None
+    id_user: Optional[int] = None
 
 
 class OrderDetailBase(BaseModel):

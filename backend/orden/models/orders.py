@@ -16,7 +16,6 @@ class Producto(Base):
     id_producto=Column(Integer, primary_key=True,autoincrement=True)
     nombre=Column(String(100))
     descripcion=Column(String(100))
-    url_imagen=Column(String(100))
     precio=Column(Double)
     fecha_creacion=Column(DateTime)
     fecha_actualizacion=Column(DateTime)
@@ -73,8 +72,8 @@ class UserDirections(Base):
 class Orden(Base):
     __tablename__ = "Orden"
     id_orden = Column(Integer, primary_key=True)
-    id_tienda = Column(Integer,ForeignKey('Tienda.id_tienda'), nullable=True)
-    id_user = Column( Integer,ForeignKey('User.id'), nullable=True)   
+    id_tienda = Column(Integer,ForeignKey('tienda.id_tienda'), nullable=True)
+    id_user = Column( Integer,ForeignKey('users.id'), nullable=True)   
     impuesto = Column(Float, nullable=False)
     estado = Column('estado', String(10), nullable=True,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)

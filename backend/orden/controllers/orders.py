@@ -1,13 +1,19 @@
 from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago
+from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
 import stripe
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends,Request
 from fastapi.responses import JSONResponse,RedirectResponse
 #from tienda.models.models_database import Producto
 from dotenv import load_dotenv
 import os
+from datetime import datetime
+import random
+import string
+from sqlalchemy.orm import class_mapper
+
+
 
 load_dotenv()
 
@@ -77,6 +83,14 @@ def crear_envio(db: Session, envio_data: envioBase):
     db.commit()
     db.refresh(envio_model)
     return envio_model  
+
+def crear_pago(db: Session, data: pagoBase):
+    envio_model = pago(**data.dict())
+    db.add(envio_model)
+    db.commit()
+    db.refresh(envio_model)
+    return envio_model  
+    
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
@@ -124,7 +138,6 @@ def create_checkout_session(order_id: int,db):
     try:
         query = db.query(Orden).filter(Orden.id_orden == order_id).first()
         cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == query.id_user).all()
-        print(len(cart))
         productos_para_checkout = []
         for item in cart:
             productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
@@ -141,126 +154,94 @@ def create_checkout_session(order_id: int,db):
                  }
                 productos_para_checkout.append(producto_dict)
                 
-        print("Productos")
-        print(len(productos_para_checkout),productos_para_checkout)
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=productos_para_checkout,
             mode='payment',
-            success_url=YOUR_DOMAIN + '/orden/success',
+            success_url=YOUR_DOMAIN + '/orden/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=YOUR_DOMAIN + '/cancel',
+            metadata={
+                'orden_id': order_id,
+            }
         )
-        return {"url": session.url}
+        session.success_url = session.success_url.replace('{CHECKOUT_SESSION_ID}', session.id)
+        return JSONResponse(content={"session": session.url})
+
     
     except stripe.error.StripeError as e:
         # Maneja errores de Stripe
         raise HTTPException(status_code=400, detail=str(e))
 
-## ENFOQUE 2
 
-# def create_order_stripe(db: Session, order_info: OrderBase):
-#     # Verifica si se proporcionó un carrito de compras o un producto directo
-#     if order_info.cart_items:
-#         # Caso: Proviene de un carrito de compras
-#         subtotal = sum(item.quantity * item.price for item in order_info.cart_items)
-#         total = subtotal
-#     elif order_info.product_id:
-#         # Caso: Proviene de un producto directo
-#         product_info = get_product_info(db, order_info.product_id)
-#         total = product_info.price * order_info.quantity
-#     else:
-#         # Error: No se proporcionó ni carrito ni producto
-#         raise ValueError("Se requiere información de carrito o producto directo para crear una orden.")
-
-#     # Crear la orden
-#     orden_model = Orden(total, estado='pendiente')
-#     db.add(orden_model)
-#     db.commit()
-#     db.refresh(orden_model)
-
-#     # Crear detalles de orden
-#     if order_info.cart_items:
-#         for item in order_info.cart_items:
-#             detalle_orden_dict = {
-#                 "orden_id": orden_model.id,
-#                 "producto_id": item.product_id,
-#                 "cantidad": item.quantity,
-#                 "precio_unitario": item.price
-#             }
-#             create_detalle_orden(db, detalle_orden_dict)
-#     elif order_info.product_id:
-#         detalle_orden_dict = {
-#             "orden_id": orden_model.id,
-#             "producto_id": order_info.product_id,
-#             "cantidad": order_info.quantity,
-#             "precio_unitario": product_info.price
-#         }
-#         create_detalle_orden(db, detalle_orden_dict)
-
-#     return orden_model
+       
 
 
-import stripe
-from fastapi import FastAPI, HTTPException
 
-app = FastAPI()
+def confirmed_payment(request: Request, db:Session):
+    session_id = request.query_params["session_id"]
+    print("Mi session :",session_id)
+    mi_datetime = datetime.now()
+    mi_fecha = mi_datetime.date()
 
-# Configura tu clave secreta de Stripe
-stripe.api_key = "tu_clave_secreta_de_stripe"
-
-def crear_sesion_pago(line_items):
     try:
-        # Crea una sesión de pago con Stripe Checkout
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=line_items,
-            mode='payment',
-            success_url='https://tu-sitio.com/pago-exitoso',
-            cancel_url='https://tu-sitio.com/pago-cancelado',
-        )
-        return {"url": session.url}
-    except Exception as e:
-        # Manejar errores
-        raise HTTPException(status_code=500, detail=str(e))
+        session = stripe.checkout.Session.retrieve(session_id)
+        print("Mi session STRIPE :",session)
+        if session.payment_status == "paid":
+            # El pago se realizó correctamente
+            # Actualizar los datos de la orden
+            orden_id = session.metadata.get('orden_id')
+            get_orden_payment= get_orden(db, int(orden_id))
+            if(get_orden_payment.id_orden == int(orden_id)):{
+                print("Mi orden :",get_orden_payment.id_orden)
+                
+                
+            }
+            print("Mi orden :",get_orden_payment.id_orden)
+            pago = {
+                "tipo_pago": "card",
+                "monto": session.amount_total,
+                "estado": str(session.payment_status),
+                "fecha_creacion": mi_fecha,
+                
+            }
+            numero_envio = generate_tracking_number()
+            new_envio = {
+                "costo": 8000 ,
+                "descripcion": "calle 1",
+                "estado": "en proceso",
+                "numero_envio": numero_envio
+            }
+            new_pago = pagoBase(**pago)
+            new_envio = envioBase(**new_envio)
 
-# @app.post("/crear_sesion_pago_producto/{producto_id}")
-# async def crear_sesion_pago_producto(producto_id: int):
-#     # Lógica para obtener información del producto desde la base de datos
-#     producto = {"id_producto": producto_id, "nombre": "Producto 1", "precio": 500}
+            new_envio_table  = crear_envio(db, new_envio)
+            new_pago_table = crear_pago(db, new_pago)
+            
+            new_orden = OrderBase(
+                id_pago=new_pago_table.id_pago,
+                id_envio=new_envio_table.id_envio,
+                impuesto=get_orden_payment.impuesto,
+                estado="pagado",
+                fecha_creacion=get_orden_payment.fecha_creacion,
+                fecha_actualizacion=mi_fecha,
+                id_tienda=get_orden_payment.id_tienda,
+                id_user=get_orden_payment.id_user
+            ) 
+            update_orden(db, get_orden_payment.id_orden,new_orden)
+            return True
+        else:
+            # El pago no se realizó correctamente
+            raise HTTPException(status_code=400, detail="El pago no se realizó correctamente")
+    except stripe.error.StripeError as e:
+        # Maneja errores de Stripe
+        raise HTTPException(status_code=400, detail=str(e))
 
-#     # Crea una lista de artículos para la sesión de pago
-#     line_items = [{
-#         'price_data': {
-#             'currency': 'usd',
-#             'product_data': {
-#                 'name': producto['nombre'],
-#             },
-#             'unit_amount': int(producto['precio'] * 100),  # Convierte el precio a centavos
-#         },
-#         'quantity': 1,
-#     }]
+def generate_tracking_number():
+    numbers = ''.join(random.choices(string.digits, k=5))
+    letters = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=2))
+    return numbers + letters
 
-#     return crear_sesion_pago(line_items)
-
-# @app.post("/crear_sesion_pago_carrito/{user_id}")
-# async def crear_sesion_pago_carrito(user_id: int):
-#     # Lógica para obtener los productos del carrito desde la base de datos
-#     productos_en_carrito = [
-#         {"id_producto": 1, "nombre": "Producto 1", "precio": 500},
-#         {"id_producto": 2, "nombre": "Producto 2", "precio": 700},
-#         # ... puedes tener más productos
-#     ]
-
-#     # Crea una lista de artículos para la sesión de pago
-#     line_items = [{
-#         'price_data': {
-#             'currency': 'usd',
-#             'product_data': {
-#                 'name': producto['nombre'],
-#             },
-#             'unit_amount': int(producto['precio'] * 100),  # Convierte el precio a centavos
-#         },
-#         'quantity': 1,
-#     } for producto in productos_en_carrito]
-
-#     return crear_sesion_pago(line_items)
+def to_dict(obj):
+    # Convert SQLAlchemy object to dictionary
+    columns = [c.key for c in class_mapper(obj.__class__).columns]
+    return {c: getattr(obj, c) for c in columns}

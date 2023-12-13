@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends
+import os
+from fastapi import APIRouter, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse
+from jinja2 import Template
+import jinja2
 
 from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
 
 from sqlalchemy.orm import Session
-from shared.database.db import get_db
+from controllers.db import get_db
 from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
-from orden.controllers.orders import create_checkout_session
-
+from orden.controllers.orders import create_checkout_session,confirmed_payment
+from fastapi.templating import Jinja2Templates
 router = APIRouter()
 
 # rutas para la clase Orden
@@ -83,17 +86,15 @@ def create_payment():
 async def create_checkout_session_route(order_id:int, db: Session = Depends(get_db)):
     return create_checkout_session(order_id,db)
 
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/success", response_class=HTMLResponse)
-async def success_page():
-    return """
-    <html>
-        <head>
-            <title>Éxito</title>
-        </head>
-        <body>
-            <h1>¡Pago exitoso!</h1>
-            <p>Gracias por realizar el pago.</p>
-        </body>
-    </html>
-    """
+async def success_page(request: Request,db: Session = Depends(get_db)):
+    payment = confirmed_payment(request, db)
+    if payment:
+        return templates.TemplateResponse("success.html", {"request": request, "payment": payment})
+    else:
+        # Handle unsuccessful payment
+        raise HTTPException(status_code=400, detail="Payment failed")
+
+  
