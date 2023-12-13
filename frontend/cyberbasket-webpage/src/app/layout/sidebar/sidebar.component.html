@@ -1,28 +1,53 @@
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
-       <li class="nav-item"> <a class="nav-link " routerLink="/dashboard"> <i class="bi bi-grid"></i> <span>Dashboard</span> </a></li>
-       <li class="nav-item">
-          <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#"> <i class="bi bi-menu-button-wide"></i><span>Opciones</span><i class="bi bi-chevron-down ms-auto"></i> </a>
-          <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-             <li> <a routerLink="/dashboard"> <i class="bi bi-circle"></i><span>Mensajes</span> </a></li>
-             <li> <a routerLink="/crea_producto"> <i class="bi bi-circle"></i><span>Crear Producto</span> </a></li>
-             <li> <a routerLink="/inventario"> <i class="bi bi-circle"></i><span>Inventario</span> </a></li>
-          </ul>
-       </li>
-       <li class="nav-item">
-          <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#"> <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i> </a>
-          <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-             <li> <a routerLink="/form-elements"> <i class="bi bi-circle"></i><span>Form Elements</span> </a></li>
-             <li> <a routerLink="/form-layouts"> <i class="bi bi-circle"></i><span>Form Layouts</span> </a></li>
-             <li> <a routerLink="/form-editors"> <i class="bi bi-circle"></i><span>Form Editors</span> </a></li>
-          </ul>
-       </li>
+
+<!-------------------Seccion que aparece solo si el usuario tiene una tienda-------------->
+      <li class="nav-heading">Cuenta</li>
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-person"></i> <span>Usuario</span> </a></li>
+
+
+
+
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/dashboard"> <i class="bi bi-grid"></i> <span>Informacion</span> </a></li>
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-grid"></i> <span>Tienda</span> </a></li>
+      <li class="nav-item">
+         <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#"> <i class="bi bi-grid"></i><span>Tiendas</span><i class="bi bi-chevron-down ms-auto"></i> </a>
+         <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_1</span> </a></li>
+            <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_2</span> </a></li>
+            <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_3</span> </a></li>
+         </ul>
+      </li>
+
+      
+
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-person"></i> <span>Inventario</span> </a></li>
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/create_product"> <i class="bi bi-person"></i> <span>Crear Producto</span> </a></li>
+      <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-person"></i> <span>Crear Tienda</span> </a></li>
+
+
+<!-------------------Seccion que aparece si el usuario no tiene tienda-------------->
+
+
+<!-------------------Seccion que siempre aparece-------------->
 
        <li class="nav-heading">Paginas</li>
-       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-person"></i> <span>Profile</span> </a></li>
+
+       <li class="nav-item">
+         <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#"> <i class="bi bi-journal-text"></i><span>Categorias</span><i class="bi bi-chevron-down ms-auto"></i> </a>
+         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+            <li> <a routerLink="/form-elements"> <i class="bi bi-circle"></i><span>Categoria_1</span> </a></li>
+            <li> <a routerLink="/form-layouts"> <i class="bi bi-circle"></i><span>Categoria_2</span> </a></li>
+            <li> <a routerLink="/form-editors"> <i class="bi bi-circle"></i><span>Categoria_3</span> </a></li>
+            <li> <a routerLink="/form-elements"> <i class="bi bi-circle"></i><span>Categoria_4</span> </a></li>
+            <li> <a routerLink="/form-layouts"> <i class="bi bi-circle"></i><span>Categoria_5</span> </a></li>
+            <li> <a routerLink="/form-editors"> <i class="bi bi-circle"></i><span>Categoria_6</span> </a></li>
+         </ul>
+      </li>
+       
        <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-contact"> <i class="bi bi-envelope"></i> <span>Contacto</span> </a></li>
        <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-register"> <i class="bi bi-card-list"></i> <span>Opciones</span> </a></li>
        <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-faq"> <i class="bi bi-question-circle"></i> <span>Info</span> </a></li>
-       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-login"> <i class="bi bi-box-arrow-in-right"></i> <span>Cerrar Sesion</span> </a></li>
+       
     </ul>
  </aside>

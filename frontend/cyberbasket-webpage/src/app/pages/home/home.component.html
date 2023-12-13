@@ -1,29 +1,19 @@
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-
-
-
+<main id="main" class="main">
 <div class="container">
   <div class="row">
     <div class="col-md-12">
       <div class="row">
-        <div class="col-md-3" *ngFor="let card of productos; let i = index">
+        <div class="col-md-3" *ngFor="let card of datos_productos_home; let i = index">
           <div class="card">
             <a href="product?id={{ card.id_inventario}}">
-              <img  src="{{card.imagen}}" class="card-img-top" alt="...">
+              <img  src="{{testImagen}}" class="card-img-top" alt="...">
 
             </a>
             
              <div class="card-body">
-              <h5 class="card-title">{{card.titulo}}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">{{card.marca}}</h6>
-              <h4>{{ card.precio | currency:'USD':'symbol':'1.2-2' }}</h4>
+              <h5 class="card-title">{{card.nombre_producto}}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{card.nombre_marca}}</h6>
+              <h4>{{ card.precio_producto | currency:'USD':'symbol':'1.0' }}</h4>
 
            </div>
           </div>
@@ -32,3 +22,4 @@
     </div>
   </div>
 </div>
+</main>

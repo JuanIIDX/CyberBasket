@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/enviroments/enviroment';
-import { ProductoModel } from 'src/models/producto.model';
+import { ProductoModel,Producto_Insertar_Model } from 'src/models/producto.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -38,13 +38,30 @@ export class TiendaService {
   };
 
 
-  postProducto(modelo: ProductoModel): Observable<ProductoModel> {
-    return this.http.post<ProductoModel>(`${environment.URL_TIENDA}producto`, {
-      nombre: modelo.nombre,
-      descripcion: modelo.descripcion,
-      precio: modelo.precio
+  /**
+   * Posts a new product to the server.
+   * 
+   * @param modelo - Un modelo del producto
+   * @returns El id que necesita
+   */
+  postProducto(modelo: Producto_Insertar_Model): Observable<Producto_Insertar_Model> {
+
+    console.log(`${environment.URL_TEST}prueba_para_insertar`);
+    return this.http.post<Producto_Insertar_Model>(`${environment.URL_TEST}prueba_para_insertar`, {
+      tienda_id: modelo.tienda_id,
+      nombre_producto: modelo.nombre_producto,
+      descripcion_producto: modelo.descripcion_producto,
+      precio_producto: modelo.precio_producto,
+      id_categoria: modelo.id_categoria,
+      stock: modelo.stock,
+      lista_imagenes: modelo.lista_imagenes
     });
   }
+
+
+  
+
+
   
 
 

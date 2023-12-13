@@ -25,6 +25,8 @@ export class HeaderComponent {
       this.activeUser.last_name = storedUser.last_name
       this.activeUser.role_id = storedUser.role_id
     }
+
+    this.document.body.classList.toggle('toggle-sidebar');
   }
 
   sidebarToggle()

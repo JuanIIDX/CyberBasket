@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TiendaService } from 'src/app/services/tienda.service';
-import { ProductoModel } from 'src/models/producto.model';
+import { ProductoModel, Producto_Insertar_Model } from 'src/models/producto.model';
 
 
 @Component({
@@ -28,15 +28,15 @@ export class PruebaComponent {
   async test_post() {
 
     console.log('test_post');
-/*     this.loadingService.presentLoading(); */
-/*     let user_id = JSON.parse(localStorage.getItem('usuario')).id; */
-    const modelo: ProductoModel = new ProductoModel();
 
+    const modelo:  Producto_Insertar_Model = new Producto_Insertar_Model();
 
-    modelo.nombre = this.obtenerFgValidador['nombre'].value; 
-    modelo.descripcion = this.obtenerFgValidador['descripcion'].value; 
-    modelo.precio = this.obtenerFgValidador['precio'].value;
-
+    modelo.tienda_id= 1,
+    modelo.nombre_producto= this.obtenerFgValidador['nombre'].value; 
+    modelo.descripcion_producto= this.obtenerFgValidador['descripcion'].value; 
+    modelo.precio_producto= 100,
+    modelo.id_categoria= 1,
+    modelo.stock= 10
 
     this.tiendaService.postProducto(modelo).subscribe(
       (datos) => {
