@@ -32,7 +32,6 @@ class Producto(BaseModel):
   id_producto=Column(Integer, primary_key=True,autoincrement=True)
   nombre=Column(String(100))
   descripcion=Column(String(100))
-  url_imagen=Column(String(100))
   precio=Column(Double)
   fecha_creacion=Column(DateTime)
   fecha_actualizacion=Column(DateTime)
