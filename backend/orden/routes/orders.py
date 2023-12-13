@@ -9,7 +9,7 @@ from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase,
 from sqlalchemy.orm import Session
 from controllers.db import get_db
 from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
-from orden.controllers.orders import create_checkout_session,confirmed_payment
+from orden.controllers.orders import create_checkout_session,confirmed_payment,create_order_stripe
 from fastapi.templating import Jinja2Templates
 router = APIRouter()
 
@@ -97,4 +97,8 @@ async def success_page(request: Request,db: Session = Depends(get_db)):
         # Handle unsuccessful payment
         raise HTTPException(status_code=400, detail="Payment failed")
 
-  
+
+
+@router.post("/process_orden/{id_user}")
+async def create_checkout_session_orden(id_user: int,db: Session = Depends(get_db)):
+    return create_order_stripe(id_user, db)

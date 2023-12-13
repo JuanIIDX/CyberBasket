@@ -28,6 +28,8 @@ class Producto(Base ):
     fecha_creacion=Column(DateTime)
     fecha_actualizacion=Column(DateTime)
 
+
+
 class Tienda(Base):
     __tablename__='tienda'
     id_tienda = Column(Integer, primary_key=True, index=True, autoincrement=True)
