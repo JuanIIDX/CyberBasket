@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float,Double,Boolean,DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from typing import List
+from pydantic import BaseModel
 #from shared.models.user import User
 #from tienda.models.models_database import Producto, Tienda
 
@@ -9,7 +11,7 @@ Base = declarative_base()
 
     
 #DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
-class Producto(Base ):
+class Producto(Base):
     __tablename__='producto'
     id_producto=Column(Integer, primary_key=True,autoincrement=True)
     nombre=Column(String(100))
@@ -70,8 +72,8 @@ class UserDirections(Base):
 class Orden(Base):
     __tablename__ = "Orden"
     id_orden = Column(Integer, primary_key=True)
-    id_tienda = Column(Integer,ForeignKey('Tienda.id_tienda'), nullable=True)
-    id_user = Column( Integer,ForeignKey('User.id'), nullable=True)   
+    id_tienda = Column(Integer,ForeignKey('tienda.id_tienda'), nullable=True)
+    id_user = Column( Integer,ForeignKey('users.id'), nullable=True)   
     impuesto = Column(Float, nullable=False)
     estado = Column('estado', String(10), nullable=True,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)

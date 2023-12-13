@@ -1,17 +1,12 @@
 import sys, os
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-import stripe
-from typing import Optional
-
+from fastapi.staticfiles import StaticFiles
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from fastapi import FastAPI
 from  routes.orders import router
-
 app = FastAPI()
+#app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(router, prefix="/orden")
-
 @app.get("/", tags=["Main"])
 def main():
     return {"message": "Hello cyberbasket"}

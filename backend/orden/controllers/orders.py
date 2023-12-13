@@ -1,11 +1,20 @@
 from datetime import datetime
+from msilib import Table
+import select
+
 #from urllib.request import Request
 from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto, pago
+
+from ..models.orders import Inventario, Orden, Detalle_Orden, Carrito_Compra, Tienda, envio,Producto, pago
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
 import stripe
 from fastapi import FastAPI, HTTPException, Depends, Request
+
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago
+from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+import stripe
+from fastapi import FastAPI, HTTPException, Depends,Request
 from fastapi.responses import JSONResponse,RedirectResponse
 #from tienda.models.models_database import Producto
 from dotenv import load_dotenv
@@ -15,6 +24,7 @@ from pydoc import stripid
 import random
 import string
 from sqlalchemy.orm import class_mapper
+from sqlalchemy import join, distinct
 
 load_dotenv()
 
@@ -109,15 +119,19 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
 
 def get_user_cart(db: Session, user_id: int):
    # return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+   print(db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all())
+   return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
+def get_carrito_compra(db: Session, carrito: int):
+    return db.query(Carrito_Compra).filter(Carrito_Compra.id_carrito == carrito).first()
+
+     
 def create_order_stripe(db: Session, orden: OrderBase):
     carrito = get_user_cart(db, orden.user_id)
-    impuesto = orden.impuesto
     subtotal = sum(item.cantidad * item.precio_unitario for item in carrito) 
     total = subtotal
     # Crear la orden
-    orden_model = Orden(total)
+    orden_model = Orden(total,estado='pendiente')
     db.add(orden_model)
     db.commit()
     db.refresh(orden_model)
@@ -139,7 +153,6 @@ def create_checkout_session(order_id: int,db):
     try:
         query = db.query(Orden).filter(Orden.id_orden == order_id).first()
         cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == query.id_user).all()
-        print(len(cart))
         productos_para_checkout = []
         for item in cart:
             productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
@@ -156,69 +169,29 @@ def create_checkout_session(order_id: int,db):
                  }
                 productos_para_checkout.append(producto_dict)
                 
-        print("Productos")
-        print(len(productos_para_checkout),productos_para_checkout)
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=productos_para_checkout,
             mode='payment',
-            success_url=YOUR_DOMAIN + '/orden/success',
+            success_url=YOUR_DOMAIN + '/orden/success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=YOUR_DOMAIN + '/cancel',
+            metadata={
+                'orden_id': order_id,
+            }
         )
-        return {"url": session.url}
+        session.success_url = session.success_url.replace('{CHECKOUT_SESSION_ID}', session.id)
+        return JSONResponse(content={"session": session.url})
+
     
     except stripe.error.StripeError as e:
         # Maneja errores de Stripe
         raise HTTPException(status_code=400, detail=str(e))
-    
-def create_order_from_cart(db: Session, user_id: int):
-    try:
-        # Obtener el carrito de compra del usuario
-        cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
-        # Crear una lista de productos para la orden
-        productos_para_orden = []
-        for item in cart:
-            productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
-            for producto in productoxcarrito:
-                producto_dict = {
-                    'nombre': producto.nombre,
-                    'precio': producto.precio,
-                    'cantidad': item.cantidad
-                }
-                productos_para_orden.append(producto_dict)
-                print(productos_para_orden)
-        # Crear la orden en la base de datos
-        orden = {
-            "id_pago": None,
-            "id_envio": None,
-            "impuesto": 0,
-            "estado": "pendiente",
-            "fecha_creacion": datetime.now(),
-            "fecha_actualizacion": datetime.now(),
-            "id_tienda": None,
-            "id_user": user_id
-        }
-        create_orden(db, orden)
 
-        # Crear los detalles de orden en la base de datos
-        for producto in productos_para_orden:
-            detalle_orden = {
-                "orden_id": orden.id_orden,
-                "producto_id": producto.id_producto,
-                "cantidad": producto.cantidad,
-                "precio_unitario": producto.precio
-            }
-            create_detalle_orden(db, detalle_orden)
 
-        return {"message": "Orden creada exitosamente"}
-
-    except Exception as e:
-        return {"error": str(e)}
 
 def confirmed_payment(request: Request, db:Session):
-    #session_id = request.query_params["session_id"]
-    session_id = request.query_params.get("session_id")
+    session_id = request.query_params["session_id"]
     print("Mi session :",session_id)
     mi_datetime = datetime.now()
     mi_fecha = mi_datetime.date()
@@ -282,6 +255,78 @@ def generate_tracking_number():
     return numbers + letters
 
 def to_dict(obj):
-    # Convert SQLAlchemy object to dictionary 
+    # Convert SQLAlchemy object to dictionary
     columns = [c.key for c in class_mapper(obj.__class__).columns]
     return {c: getattr(obj, c) for c in columns}
+
+def get_tienda_producto(db: Session, producto_id: int):
+    # result = (
+    #     db.query(Orden)
+    #     .join(Detalle_Orden, Orden.id_orden == Detalle_Orden.id_orden)
+    #     .join(Tienda, Orden.id_tienda == Tienda.id_tienda)
+    #     .filter(Detalle_Orden.producto_id == producto_id)
+    #     .all()
+    # )
+    #result = {obj.id_orden: obj.__dict__ for obj in result}
+    result = (
+        db.query(Inventario.id_tienda)
+        .join(Carrito_Compra, Carrito_Compra.id_producto == Inventario.id_producto)
+        .filter(Carrito_Compra.id_producto == producto_id)
+    )
+    print(result)
+    #result = {obj.id_tienda: obj.__dict__ for obj in result}
+    result = {obj.id_tienda: {"id_tienda": obj.id_tienda} for obj in result}
+    print(result)
+    return result
+
+
+
+def create_order_from_cart(db: Session, user_id: int):
+
+    tienda = get_tienda_producto(db, user_id)
+    mi_datetime = datetime.now()
+    mi_fecha = mi_datetime.date()
+    try:
+        # Obtener el carrito de compra del usuario
+        cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+
+        # Crear una lista de productos para la orden
+        productos_para_orden = []
+        for item in cart:
+            productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
+            for producto in productoxcarrito:
+                producto_dict = {
+                    'nombre': producto.nombre,
+                    'precio': producto.precio,
+                    'cantidad': item.cantidad
+                }
+                productos_para_orden.append(producto_dict)
+                print(productos_para_orden)
+        # Crear la orden en la base de datos
+        orden = OrderBase(
+            id_pago=None,
+            id_envio=None,
+            impuesto=0,
+            estado="proceso",
+            fecha_creacion=mi_fecha,
+            fecha_actualizacion=mi_fecha,
+            id_tienda=tienda,
+            id_user=get_carrito_compra.id_user
+        )
+        create_orden(db, orden)
+
+        # Crear los detalles de orden en la base de datos
+        for producto in productos_para_orden:
+            detalle_orden = OrderDetailBase(
+                id_orden=orden.id_orden,
+                producto_id=producto.id_producto,
+                cantidad=producto.cantidad,
+                precio_unitario=producto.precio
+            )
+            create_detalle_orden(db, detalle_orden)
+
+        return {"message": "Orden creada exitosamente"}
+
+    except Exception as e:
+        return {"error": str(e)}
+    

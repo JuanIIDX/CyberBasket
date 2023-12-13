@@ -2,16 +2,19 @@
 from http.client import HTTPException
 from pipes import Template
 #from urllib.request import Request
-from fastapi import APIRouter, Depends, Request
+import os
+from fastapi import APIRouter, Depends, Request, HTTPException,Request
 from fastapi.responses import HTMLResponse
-
-
+#from jinja2 import Template
+import jinja2
+#from starlette.responses import TemplateResponse
 from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase, pagoBase
 
 from sqlalchemy.orm import Session
-from shared.database.db import get_db
-from orden.controllers.orders import confirmed_payment, crear_carrito_compra, crear_envio, crear_pago, create_order_from_cart, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
-from orden.controllers.orders import create_checkout_session
+from controllers.db import get_db
+from orden.controllers.orders import crear_carrito_compra, crear_envio, crear_pago, create_order_from_cart, create_order_stripe, get_carrito_compra, get_ordenes, get_orden, create_orden, get_tienda_producto, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import create_checkout_session,confirmed_payment
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 
@@ -66,6 +69,10 @@ def delete_new_detalle_orden(detalle_orden_id: int, db: Session = Depends(get_db
 def create_new_carrito_compra(carrito_compra: CarritoComprarBase, db: Session = Depends(get_db)):
     return crear_carrito_compra(db, carrito_compra)
 
+@router.get("/carrito_compras/carrito/{id_carrito}")
+def get_carrito(id_user: int, db: Session = Depends(get_db)):
+    return get_carrito_compra(db, id_user)
+
 # rutas para envio
 
 @router.post("/envios")
@@ -88,24 +95,24 @@ def create_payment():
 async def create_checkout_session_route(order_id:int, db: Session = Depends(get_db)):
     return create_checkout_session(order_id,db)
 
+templates = Jinja2Templates(directory="templates")
 
 @router.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request,db: Session = Depends(get_db)):
     payment = confirmed_payment(request, db)
     if payment:
-        return Template.TemplateResponse("success.html", {"request": request, "payment": payment})
+        return templates.TemplateResponse("success.html", {"request": request, "payment": payment})
     else:
         # Handle unsuccessful payment
         raise HTTPException(status_code=400, detail="Payment failed")
     
-@router.post("/order/create_new_from_cart")
-def create_new_order_from_cart(user_id: int, db: Session = Depends(get_db)):
-    #return create_order_from_cart(db, user_id)
-    order = create_order_from_cart(db, user_id)
-    if isinstance(order, dict):
-        return order  # Ya es un diccionario, no se necesita hacer nada más
-    else:
-        return order.dict()  # Si es un modelo Pydantic, convertirlo a un diccionario
+# @router.post("/order/create_new_from_cart")
+# def create_new_order_from_cart(user_id: int, db: Session = Depends(get_db)):
+#     return dict(create_order_from_cart_prueba(db, user_id))
+
+@router.get("/tiendaxproducto/{producto_id}")
+def get_tienda_por_producto(producto_id: int, db: Session = Depends(get_db)):
+    return dict(get_tienda_producto(db,producto_id))
 
 @router.post("/crear_pago")
 def create_pago(pago: pagoBase, db: Session = Depends(get_db)): 
