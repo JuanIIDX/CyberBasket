@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends
+
+from http.client import HTTPException
+from pipes import Template
+#from urllib.request import Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 
-from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
+
+from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase, pagoBase
 
 from sqlalchemy.orm import Session
 from shared.database.db import get_db
-from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import confirmed_payment, crear_carrito_compra, crear_envio, crear_pago, create_order_from_cart, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
 from orden.controllers.orders import create_checkout_session
 
 router = APIRouter()
@@ -85,15 +90,24 @@ async def create_checkout_session_route(order_id:int, db: Session = Depends(get_
 
 
 @router.get("/success", response_class=HTMLResponse)
-async def success_page():
-    return """
-    <html>
-        <head>
-            <title>Éxito</title>
-        </head>
-        <body>
-            <h1>¡Pago exitoso!</h1>
-            <p>Gracias por realizar el pago.</p>
-        </body>
-    </html>
-    """
+async def success_page(request: Request,db: Session = Depends(get_db)):
+    payment = confirmed_payment(request, db)
+    if payment:
+        return Template.TemplateResponse("success.html", {"request": request, "payment": payment})
+    else:
+        # Handle unsuccessful payment
+        raise HTTPException(status_code=400, detail="Payment failed")
+    
+@router.post("/order/create_new_from_cart")
+def create_new_order_from_cart(user_id: int, db: Session = Depends(get_db)):
+    #return create_order_from_cart(db, user_id)
+    order = create_order_from_cart(db, user_id)
+    if isinstance(order, dict):
+        return order  # Ya es un diccionario, no se necesita hacer nada más
+    else:
+        return order.dict()  # Si es un modelo Pydantic, convertirlo a un diccionario
+
+@router.post("/crear_pago")
+def create_pago(pago: pagoBase, db: Session = Depends(get_db)): 
+    return crear_pago(db,pago)
+

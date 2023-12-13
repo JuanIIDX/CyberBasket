@@ -16,7 +16,7 @@ class OrderBase(BaseModel):
 
 
 class OrderDetailBase(BaseModel):
-    orden_id: int
+    id_orden: int
     producto_id: int
     cantidad: int
     precio_unitario: float
