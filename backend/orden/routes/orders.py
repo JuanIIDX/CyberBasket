@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 
-from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
+from schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
 
 from sqlalchemy.orm import Session
-from shared.database.db import get_db
-from orden.controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
-from orden.controllers.orders import create_checkout_session
+from controllers.db import get_db
+from controllers.orders import crear_carrito_compra, crear_envio, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from controllers.orders import create_checkout_session
 
 router = APIRouter()
 
