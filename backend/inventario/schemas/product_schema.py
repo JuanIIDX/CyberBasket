@@ -86,6 +86,11 @@ class inventario_schema(BaseModel):
     id_producto: int
     cantidad: int
 
+class inventario_schema(BaseModel):
+    id_tienda: int
+    id_producto: int
+    cantidad: int
+
 class productoXcategoria_schema(BaseModel):
     id_producto: int
     id_categoria: int
@@ -97,6 +102,28 @@ class imagen_prod_schema(BaseModel):
     nombre: str
     fecha_creacion: datetime
     fecha_modificacion: datetime
+
+"""
+Esquemas para productos
+"""
+class product_schema_1(BaseModel):
+    id_producto: int
+    nombre: str
+    descripcion: str
+    precio: float
+    cantidad: int
+
+
+"""
+Esquemas para imagenes de producto
+"""
+class image_product_schema_1(BaseModel):
+    id_producto: int
+    nombre: str
+    tipo: str
+    base64content: str
+
+
 
 
 

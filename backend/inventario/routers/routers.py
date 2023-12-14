@@ -22,8 +22,9 @@ def get_all_productos(db: Session = Depends(get_db)):
     """
     return all_productos(db)
 
+
 """
-Datos para consular productos en el Home
+★★Datos para consular productos en el Home
 """
 @router.get("/consulta", response_model=datos_producto_home)
 async def get_consulta(pagina: int = 0, elementos: int = 24, db: Session = Depends(get_db)):
@@ -85,7 +86,7 @@ async def get_consulta(pagina: int = 0, elementos: int = 24, db: Session = Depen
 
 
 """
-Funcion para agregar un producto a la base de datos
+★★Funcion para agregar un producto a la base de datos
 """
 
 @router.post("/prueba_para_insertar")
@@ -228,3 +229,74 @@ async def insert_prueba(info: insercion_producto_schema, db: Session = Depends(g
         return {"error": "error de procesamiento"}
     finally:
         db.close()
+
+
+"""
+★★Datos que retornan la info de un producto en especifico
+"""
+@router.get("/producto/", response_model=product_schema_1)
+async def get_consulta(producto_id: int,db: Session = Depends(get_db)):
+
+    try:
+        result = (
+            db.query(Producto.id_producto, Producto.nombre,Producto.descripcion,Producto.precio,Inventario.cantidad)
+            .join(Inventario, Inventario.id_producto == Producto.id_producto)
+            .filter(Producto.id_producto == producto_id)
+            .one()
+        )
+
+        return result
+        
+
+
+    except Exception as e:
+        print("Esta incorrecto")
+    finally:
+        db.close()
+
+
+"""
+★★Metodo que retorna las imagenes decorativas de un producto
+"""
+@router.get("/imagenes_producto/decorativas", response_model=list[image_product_schema_1])
+async def get_consulta(producto_id: int,db: Session = Depends(get_db)):
+
+    try:
+        result = (
+            db.query(Producto.id_producto, Imagenes_Producto.nombre,Imagenes_Producto.tipo,Imagenes_Producto.base64content)
+            .join(Imagenes_Producto, Imagenes_Producto.id_producto == Producto.id_producto)
+            .filter(Producto.id_producto == producto_id).filter(Imagenes_Producto.tipo == "decorativa")
+            .all()
+        )
+
+        return result
+
+    except Exception as e:
+        print("Esta incorrecto")
+    finally:
+        db.close()
+
+"""
+★★Metodo que retorna la imagen principal de un producto
+"""
+@router.get("/imagenes_producto/principal", response_model=image_product_schema_1)
+async def get_consulta(producto_id: int,db: Session = Depends(get_db)):
+
+    try:
+        result = (
+            db.query(Producto.id_producto, Imagenes_Producto.nombre,Imagenes_Producto.tipo,Imagenes_Producto.base64content)
+            .join(Imagenes_Producto, Imagenes_Producto.id_producto == Producto.id_producto)
+            .filter(Producto.id_producto == producto_id).filter(Imagenes_Producto.tipo == "principal")
+            .one()
+        )
+
+        return result
+        
+
+
+    except Exception as e:
+        print("Esta incorrecto")
+    finally:
+        db.close()
+
+
