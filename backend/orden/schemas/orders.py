@@ -4,6 +4,11 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class InventarioBasicSchema(BaseModel):
+    id_tienda: int
+    id_producto: int
+    cantidad:int
+
 class OrderBase(BaseModel):
     id_pago: Optional[int] = None
     id_envio: Optional[int] = None

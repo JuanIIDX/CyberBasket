@@ -1,18 +1,26 @@
-from tienda.models.models_database import Producto
+from datetime import datetime
+from msilib import Table
+import select
+
+
 from sqlalchemy.orm import Session, joinedload
+<<<<<<< HEAD
 from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario
 from schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+=======
+from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario, Producto
+from schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+>>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 import stripe
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import os
-from datetime import datetime
+from pydoc import stripid
 import random
 import string
 from sqlalchemy.orm import class_mapper
-
-
+from sqlalchemy import join, distinct, func, select, create_engine, text
 
 load_dotenv()
 
@@ -20,7 +28,7 @@ def get_ordenes(db: Session):
     return db.query(Orden).all()
 
 def get_orden(db: Session, orden_id: int):
-        return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
+    return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
 
 def create_orden(db: Session, orden: OrderBase):
     orden_model = Orden(**orden.dict())
@@ -83,13 +91,12 @@ def crear_envio(db: Session, envio_data: envioBase):
     db.refresh(envio_model)
     return envio_model  
 
-def crear_pago(db: Session, data: pagoBase):
-    envio_model = pago(**data.dict())
+def crear_pago(db: Session, envio_data: pagoBase):
+    envio_model = pago(**envio_data.dict())
     db.add(envio_model)
     db.commit()
     db.refresh(envio_model)
-    return envio_model  
-    
+    return envio_model
     
 # ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
@@ -104,11 +111,68 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     db.refresh(carrito_compra_model)
     return carrito_compra_model
 
-
+def delete_carrito_compra(db: Session, user_id: int):
+    carrito_compra = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+    if carrito_compra:
+        for carrito in carrito_compra:
+            db.delete(carrito)
+        db.commit()
+    else:
+        raise ValueError("CarritoCompra with id {} not found".format(user_id))
 
 def get_user_cart(db: Session, user_id: int):
    # return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+   print(db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all())
+   return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+
+def get_product_id_by_order_id(db: Session, id_orden: int):
+    result = (
+        db.query(Detalle_Orden)
+        .join(Orden, Detalle_Orden.id_orden == Orden.id_orden)
+        .filter(Orden.id_orden == id_orden)
+        .all()
+    )
+    for obj in result:
+        for attr, value in obj.__dict__.items():
+            print(f"{attr}: {value}")
+    print(result)
+    return result
+
+def get_inventario(db: Session, producto_id: int):
+    inven =(
+        db.query(Inventario)
+        .filter( Inventario.id_producto == producto_id)
+        .first()
+    )
+    return inven.id_inventario
+
+
+def get_inventory_quantity_by_store_id(db: Session,id_orden: int, producto_id: int, id_tienda: int):
+    
+    result = (
+        db.query(func.sum(Detalle_Orden.cantidad))
+        .join(Orden, Detalle_Orden.id_orden == Orden.id_orden)
+        .filter(Detalle_Orden.id_orden == id_orden, Detalle_Orden.producto_id == producto_id, Orden.id_tienda == id_tienda)
+        .scalar()
+    )
+    result2 = (
+        db.query(Inventario.cantidad)
+        .filter(Inventario.id_tienda == id_tienda, Inventario.id_producto == producto_id)
+        .scalar()
+    )
+ 
+        
+    print(result)
+    print(result2)
+    if result is None:
+        result = 0
+    if result2 is None:
+        result2 = 0
+
+    resultado = result2 - result
+    print("RESULTADO",resultado)
+    #result = {obj.cantidad: obj.__dict__ for obj in result}
+    return resultado
 
 
 
@@ -196,8 +260,19 @@ def create_checkout_session(order_id: int,db):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-       
 
+
+def update_inventory(db: Session, inventario:int, inventory: InventarioBasicSchema):
+
+    db_inventory = db.query(Inventario).filter(Inventario.id_inventario == inventario).first()
+    if db_inventory is None:
+        return None
+    for var, value in vars(inventory).items():
+        if hasattr(db_inventory, var):
+            setattr(db_inventory, var, value)
+    db.commit()
+    db.refresh(db_inventory)
+    return db_inventory
 
 
 def confirmed_payment(request: Request, db:Session):
@@ -235,9 +310,27 @@ def confirmed_payment(request: Request, db:Session):
 
             new_envio_table  = crear_envio(db, new_envio)
             new_pago_table = crear_pago(db, new_pago)
+<<<<<<< HEAD
             for orden in ordenes:
                 if(orden.id_user == int(usuario) and orden.estado != "pagado"):
                     
+=======
+            producto= get_product_id_by_order_id(db, int(orden_id))
+            
+            delete_carrito_compra(db, int(usuario))
+            
+            for orden in ordenes:
+                if(orden.id_user == int(usuario) and orden.estado != "pagado"):
+                    for item in producto:
+                        inventario = get_inventario(db,item.producto_id)
+                        new_inventario = InventarioBasicSchema(
+                            id_tienda=orden.id_tienda,
+                            id_producto=item.producto_id,
+                            cantidad=get_inventory_quantity_by_store_id(db, orden.id_orden,item.producto_id,orden.id_tienda)
+                        )
+                        update_inventory(db, inventario,new_inventario)
+
+>>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
                     new_orden = OrderBase(
                         id_pago=new_pago_table.id_pago,
                         id_envio=new_envio_table.id_envio,
@@ -249,6 +342,10 @@ def confirmed_payment(request: Request, db:Session):
                         id_user=orden.id_user
                     ) 
                     update_orden(db, orden.id_orden,new_orden)
+<<<<<<< HEAD
+=======
+            
+>>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
             return True
         else:
                 # El pago no se realizó correctamente
@@ -256,6 +353,10 @@ def confirmed_payment(request: Request, db:Session):
     except stripe.error.StripeError as e:
             # Maneja errores de Stripe
             raise HTTPException(status_code=400, detail=str(e))
+<<<<<<< HEAD
+=======
+                    
+>>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 
 def generate_tracking_number():
     numbers = ''.join(random.choices(string.digits, k=5))
@@ -266,3 +367,69 @@ def to_dict(obj):
     # Convert SQLAlchemy object to dictionary
     columns = [c.key for c in class_mapper(obj.__class__).columns]
     return {c: getattr(obj, c) for c in columns}
+
+def get_tienda_producto(db: Session, producto_id: int):
+
+    result = (
+        db.query(Inventario.id_tienda)
+        .join(Carrito_Compra, Carrito_Compra.id_producto == Inventario.id_producto)
+        .filter(Carrito_Compra.id_producto == producto_id)
+    )
+    print(result)
+    #result = {obj.id_tienda: obj.__dict__ for obj in result}
+    result = {obj.id_tienda: {"id_tienda": obj.id_tienda} for obj in result}
+    print(result)
+    return result
+
+
+
+def create_order_from_cart(db: Session, user_id: int):
+
+    tienda = get_tienda_producto(db, user_id)
+    mi_datetime = datetime.now()
+    mi_fecha = mi_datetime.date()
+    try:
+        # Obtener el carrito de compra del usuario
+        cart = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+
+        # Crear una lista de productos para la orden
+        productos_para_orden = []
+        for item in cart:
+            productoxcarrito = db.query(Producto).filter(Producto.id_producto == item.id_producto).all()
+            for producto in productoxcarrito:
+                producto_dict = {
+                    'nombre': producto.nombre,
+                    'precio': producto.precio,
+                    'cantidad': item.cantidad
+                }
+                productos_para_orden.append(producto_dict)
+                print(productos_para_orden)
+        # Crear la orden en la base de datos
+        orden = OrderBase(
+            id_pago=None,
+            id_envio=None,
+            impuesto=0,
+            estado="proceso",
+            fecha_creacion=mi_fecha,
+            fecha_actualizacion=mi_fecha,
+            id_tienda=tienda,
+           # id_user=get_carrito_compra.id_user
+        )
+        create_orden(db, orden)
+
+        # Crear los detalles de orden en la base de datos
+        for producto in productos_para_orden:
+            detalle_orden = OrderDetailBase(
+                id_orden=orden.id_orden,
+                producto_id=producto.id_producto,
+                cantidad=producto.cantidad,
+                precio_unitario=producto.precio
+            )
+            create_detalle_orden(db, detalle_orden)
+
+        return {"message": "Orden creada exitosamente"}
+
+    except Exception as e:
+        return {"error": str(e)}
+    
+    
