@@ -12,45 +12,28 @@
                         <div class="ps-3">
                            <br>
                            <h2>{{nombre_producto}}</h2>
-                           <h5 class="text-muted  ps-1">{{marca_producto}} id==({{id_producto}})</h5>
+                           <h5 class="text-muted  ps-1">{{nombre_producto}} id==({{id_producto}})</h5>
+
 
 
                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-                              <div class="carousel-indicators">
-                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
-                                    class="active" aria-current="true" aria-label="Slide 1"></button>
-                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
-                                    aria-label="Slide 2"></button>
-                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
-                                    aria-label="Slide 3"></button>
-                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3"
-                                    aria-label="Slide 4"></button>
-                                 <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4"
-                                    aria-label="Slide 5"></button>
-
-
-                              </div>
+                              <div class="carousel-indicators"> 
+                              <!-------------------Parte que ordena los botones de las imagenes-------------->
+                              <button *ngIf="lista_imagenes[0] !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button> 
+                              <button *ngIf="lista_imagenes[1] !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button> 
+                              <button *ngIf="lista_imagenes[2] !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                              <button *ngIf="lista_imagenes[3] !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button> 
+                              <button *ngIf="lista_imagenes[4] !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4" aria-label="Slide 5"></button>
+                          </div>
+                              <!-------------------Parte que ordena los sliders-------------->
                               <div class="carousel-inner">
-
-                                 <div class="carousel-item active"> <img src="{{imagenes_producto[0]}}"
-                                       class="d-block w-100" alt="..."></div>
-                                 <div class="carousel-item"> <img src="{{imagenes_producto[1]}}" class="d-block w-100"
-                                       alt="..."></div>
-                                 <div class="carousel-item"> <img src="{{imagenes_producto[2]}}" class="d-block w-100"
-                                       alt="..."></div>
-                                 <div class="carousel-item"> <img src="{{imagenes_producto[3]}}" class="d-block w-100"
-                                       alt="..."></div>
-                                 <div class="carousel-item"> <img src="{{imagenes_producto[4]}}" class="d-block w-100"
-                                       alt="..."></div>
-
+                                 <div *ngIf="lista_imagenes[0] !== ''" class="carousel-item active"> <img src="{{lista_imagenes[0]}}" class="d-block w-100" alt="..."></div>
+                                 <div *ngIf="lista_imagenes[1] !== ''"  class="carousel-item"> <img src="{{lista_imagenes[1]}}" class="d-block w-100" alt="..."></div>
+                                 <div *ngIf="lista_imagenes[2] !== ''"  class="carousel-item"> <img src="{{lista_imagenes[2]}}" class="d-block w-100" alt="..."></div>
+                                 <div *ngIf="lista_imagenes[3] !== ''"  class="carousel-item"> <img src="{{lista_imagenes[3]}}" class="d-block w-100" alt="..."></div>
+                                 <div *ngIf="lista_imagenes[4] !== ''"  class="carousel-item"> <img src="{{lista_imagenes[4]}}" class="d-block w-100" alt="..."></div>
                               </div>
-                              <button class="carousel-control-prev" type="button"
-                                 data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"> <span
-                                    class="carousel-control-prev-icon" aria-hidden="true"></span> <span
-                                    class="visually-hidden">Previous</span> </button> <button
-                                 class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
-                                 data-bs-slide="next"> <span class="carousel-control-next-icon"
-                                    aria-hidden="true"></span> <span class="visually-hidden">Next</span> </button>
+                              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"> <span class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="visually-hidden">Previous</span> </button> <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"> <span class="carousel-control-next-icon" aria-hidden="true"></span> <span class="visually-hidden">Next</span> </button>
                            </div>
                            <div class="card-body">
                               <h5 class="card-title">Descripcion</h5>

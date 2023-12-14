@@ -118,11 +118,14 @@ export class CreateProductComponent {
       (datos) => {
 /*         this.loadingService.loadingController.dismiss(); */
         console.log('Registro almacenado correctamente.');
+        alert('Registro almacenado correctamente.');
+        
 
       },
       (err) => {
 /*         this.loadingService.loadingController.dismiss(); */
         console.log('Error al almacenar el registro.');
+        alert('Error al almacenar el registro.');
 
       }
     );

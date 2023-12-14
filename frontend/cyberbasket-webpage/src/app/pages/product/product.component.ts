@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -7,15 +8,23 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./product.component.scss']
 })
 export class ProductComponent {
+  //Datos 
   id_producto: string="";
+
+  //Datos a mostrar
   nombre_producto: string="";
   descripcion_producto: string="";
-  imagenes_producto: string []=[];
-  marca_producto: string="";
+  stock: number=0;
   precio_producto: number=0;
   precio_envio: number=0;
 
-  constructor(private route: ActivatedRoute) { }
+  
+  //marca_producto: string="";
+
+  //imagenes producto
+  lista_imagenes: string [];
+
+  constructor(private route: ActivatedRoute,private http: HttpClient) { }
 
   ngOnInit() {
     this.id_producto = this.route.snapshot.queryParams['id'];
@@ -23,32 +32,86 @@ export class ProductComponent {
   }
 
   obtiene_info_producto(){
-
-    //OBTIENE LA INFORMACION DEL PRODUCTO
-    const data = {
-      id_producto: this.id_producto,
-      nombre: "NEKO ARC",
-      marca: "TYPE-MOON",
-      descripcion: "Neco-Arc es un espíritu neco en los mundos de Tsukihime y una parodia de Arcueid Brunestud en forma de gato que a veces actúa como la mascota de la serie. Es un personaje recurrente en las obras de Type-Moon, apareciendo en las novelas visuales Tsukihime, Melty Blood, Fate/stay night, Fate/Grand Order, y en las series de anime Carnival Phantasm, Fate/Extra Last Encore, y Fate/Grand Carnival.Neco-Arc es un miembro de la raza de los espíritus neco originaria de la Gran Aldea de los Gatos. Se convirtió en la estudiante de la Sra. Miyako Arima, una bruja que se especializa en magia felina. Neco-Arc es una criatura muy poderosa, con una fuerza física comparable a la de Arcueid Brunestud. También es una maestra de la magia, y puede usar sus habilidades para crear objetos, alterar la realidad, y controlar a los demás.Neco-Arc es un personaje muy extrovertido y alegre. Le encanta jugar y divertirse, y siempre está buscando nuevas aventuras. También es muy arrogante y egocéntrica, y cree que es la criatura más poderosa del mundo.En Carnival Phantasm, Neco-Arc es uno de los personajes principales. Aparece en la mayoría de los episodios, y siempre está causando problemas. Es una fuente constante de comedia, y sus travesuras siempre están poniendo a los demás en peligro.",
-      precio:4000,
-      precio_envio: 2000,
-    };
-
-    this.nombre_producto=data.nombre;
-    this.descripcion_producto=data.descripcion;
-    this.marca_producto=data.marca;
-    this.precio_producto=data.precio;
-    this.precio_envio=data.precio_envio;
+    this.carga_datos_producto();
+    
+    this.lista_imagenes=["","","","",""];
+    this.carga_imagen_principal();
+    this.carga_imagenes_secundarias();
 
 
-    const imagen3="data:image/jpeg;base64,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";
-
-    this.imagenes_producto=[imagen3,imagen3,imagen3,imagen3,imagen3];
 
 
     }
 
     //OBTIENE LAS IMAGENES DEL PRODUCTO
+
+
+    ///ORGANIZA LUEGO COMO OBTIENE DATOS DE PRODUCTO
+    carga_datos_producto(): Promise<any> {
+
+      return new Promise((resolve) => {
+        this.http
+          .get<any>(`http://127.0.0.1/producto/?producto_id=`+this.id_producto)
+          .subscribe(
+            (resp) => {
+              this.stock=resp.cantidad;
+              this.descripcion_producto=resp.descripcion;
+              this.id_producto=resp.id_producto;
+              this.nombre_producto=resp.nombre;
+              this.precio_producto=resp.precio;
+              console.log(resp);
+              return resolve(resp);
+            },
+            (err) => {
+              return resolve(null);
+            }
+          );
+      });
+    }
+
+      ///ORGANIZA LUEGO COMO OBTIENE IMAGEN PRINCIPAL
+      carga_imagen_principal(): Promise<any> {
+
+        return new Promise((resolve) => {
+          this.http
+            .get<any>(`http://127.0.0.1/imagenes_producto/principal?producto_id=`+this.id_producto)
+            .subscribe(
+              (resp) => {
+                this.lista_imagenes[0]=resp.base64content;
+
+                //console.log(resp);
+                return resolve(resp);
+              },
+              (err) => {
+                return resolve(null);
+              }
+            );
+        });
+      }
+
+        ///ORGANIZA LUEGO COMO OBTIENE IMAGEN PRINCIPAL
+        carga_imagenes_secundarias(): Promise<any> {
+
+          return new Promise((resolve) => {
+            this.http
+              .get<any>(`http://127.0.0.1/imagenes_producto/decorativas?producto_id=`+this.id_producto)
+              .subscribe(
+                (resp) => {
+
+                  for (let index = 0; index < resp.length; index++) {
+                    this.lista_imagenes[index+1]=resp[index].base64content;
+                  }
+
+                  return resolve(resp);
+                },
+                (err) => {
+                  return resolve(null);
+                }
+              );
+          });
+        }
+
+
 
 
   
