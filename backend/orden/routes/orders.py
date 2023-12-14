@@ -1,8 +1,5 @@
-import os
 from fastapi import APIRouter, Depends, HTTPException,Request
 from fastapi.responses import HTMLResponse
-from jinja2 import Template
-import jinja2
 
 from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase
 
