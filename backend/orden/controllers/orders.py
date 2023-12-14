@@ -1,12 +1,13 @@
 from datetime import datetime
 from msilib import Table
 import select
+from controllers.db import get_db
 
 #from urllib.request import Request
 from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
 from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+from ..schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
 import stripe
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -18,7 +19,7 @@ from pydoc import stripid
 import random
 import string
 from sqlalchemy.orm import class_mapper
-from sqlalchemy import join, distinct, func
+from sqlalchemy import join, distinct, func, select, create_engine, text
 
 load_dotenv()
 
@@ -116,17 +117,56 @@ def get_user_cart(db: Session, user_id: int):
    print(db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all())
    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
-def get_inventory_quantity_by_store_id(db: Session, id_tienda: int):
-    # Query to get the inventory quantity by store id
+def get_product_id_by_order_id(db: Session, id_orden: int):
     result = (
-    db.query(func.sum(Inventario.cantidad))
-    .join(Orden, Orden.id_tienda == Inventario.id_tienda)
-    .filter(Orden.id_tienda == id_tienda)
-    .scalar()
-)
+        db.query(Detalle_Orden)
+        .join(Orden, Detalle_Orden.id_orden == Orden.id_orden)
+        .filter(Orden.id_orden == id_orden)
+        .all()
+    )
+    for obj in result:
+        for attr, value in obj.__dict__.items():
+            print(f"{attr}: {value}")
     print(result)
-    #result = {obj.cantidad: obj.__dict__ for obj in result}
     return result
+
+def get_inventario(db: Session, producto_id: int):
+    inven =(
+        db.query(Inventario)
+        .filter( Inventario.id_producto == producto_id)
+        .first()
+    )
+    return inven.id_inventario
+
+
+def get_inventory_quantity_by_store_id(db: Session,id_orden: int, producto_id: int, id_tienda: int):
+    
+    result = (
+        db.query(func.sum(Detalle_Orden.cantidad))
+        .join(Orden, Detalle_Orden.id_orden == Orden.id_orden)
+        .filter(Detalle_Orden.id_orden == id_orden, Detalle_Orden.producto_id == producto_id, Orden.id_tienda == id_tienda)
+        .scalar()
+    )
+    result2 = (
+        db.query(Inventario.cantidad)
+        .filter(Inventario.id_tienda == id_tienda, Inventario.id_producto == producto_id)
+        .scalar()
+    )
+ 
+        
+    print(result)
+    print(result2)
+    if result is None:
+        result = 0
+    if result2 is None:
+        result2 = 0
+
+    resultado = result2 - result
+    print("RESULTADO",resultado)
+    #result = {obj.cantidad: obj.__dict__ for obj in result}
+    return resultado
+
+
 
 def create_order_stripe(id_user : int,db: Session):
     carrito = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == id_user).all()
@@ -214,6 +254,19 @@ def create_checkout_session(order_id: int,db):
 
 
 
+def update_inventory(db: Session, inventario:int, inventory: InventarioBasicSchema):
+
+    db_inventory = db.query(Inventario).filter(Inventario.id_inventario == inventario).first()
+    if db_inventory is None:
+        return None
+    for var, value in vars(inventory).items():
+        if hasattr(db_inventory, var):
+            setattr(db_inventory, var, value)
+    db.commit()
+    db.refresh(db_inventory)
+    return db_inventory
+
+
 def confirmed_payment(request: Request, db:Session):
     session_id = request.query_params["session_id"]
     print("Mi session :",session_id)
@@ -249,9 +302,23 @@ def confirmed_payment(request: Request, db:Session):
 
             new_envio_table  = crear_envio(db, new_envio)
             new_pago_table = crear_pago(db, new_pago)
+            producto= get_product_id_by_order_id(db, int(orden_id))
             for orden in ordenes:
                 if(orden.id_user == int(usuario) and orden.estado != "pagado"):
-                    
+                    for item in producto:
+                        inventario = get_inventario(db,item.producto_id)
+                        new_inventario = InventarioBasicSchema(
+                            id_tienda=orden.id_tienda,
+                            id_producto=item.producto_id,
+                            cantidad=get_inventory_quantity_by_store_id(db, orden.id_orden,item.producto_id,orden.id_tienda)
+                        )
+                        update_inventory(db, inventario,new_inventario)
+                    # new_inventario = InventarioBasicSchema(
+                    #     id_tienda=orden.id_tienda,
+                    #     id_producto=orden.id_producto,
+                    #     cantidad=get_inventory_quantity_by_store_id(db, orden.id_orden,orden.id_producto,orden.id_tienda)
+                    # )
+                    # update_inventory(db, get_inventario(orden.id_tienda,),new_inventario)
                     new_orden = OrderBase(
                         id_pago=new_pago_table.id_pago,
                         id_envio=new_envio_table.id_envio,

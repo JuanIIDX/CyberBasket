@@ -8,11 +8,11 @@ from fastapi.responses import HTMLResponse
 #from jinja2 import Template
 import jinja2
 #from starlette.responses import TemplateResponse
-from orden.schemas.orders import CarritoComprarBase, OrderBase, OrderDetailBase, envioBase, pagoBase
+from orden.schemas.orders import CarritoComprarBase, InventarioBasicSchema, OrderBase, OrderDetailBase, envioBase, pagoBase
 
 from sqlalchemy.orm import Session
 from controllers.db import get_db
-from orden.controllers.orders import crear_carrito_compra, crear_envio, get_inventory_quantity_by_store_id, get_ordenes, get_orden, create_orden, get_user_cart, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
+from orden.controllers.orders import crear_carrito_compra, crear_envio, get_inventario, get_inventory_quantity_by_store_id, get_ordenes, get_orden, create_orden, get_product_id_by_order_id, get_user_cart, update_inventory, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
 from orden.controllers.orders import create_checkout_session,confirmed_payment,create_order_stripe
 from fastapi.templating import Jinja2Templates
 
@@ -85,8 +85,8 @@ def read_user_cart(id_user: int, db: Session = Depends(get_db)):
     return get_user_cart(db, id_user)
 
 @router.get("/inventario/{id_tienda}")
-def get_cantidad(id_tienda: int, db: Session = Depends(get_db)):
-    return get_inventory_quantity_by_store_id(db, id_tienda)
+def get_cantidad( id_orden: int, id_producto: int, id_tienda: int, db: Session = Depends(get_db)):
+    return get_inventory_quantity_by_store_id(db, id_orden,id_producto,id_tienda)
 
 
 # ************************* RUTA PAGO STRIPE ********************** 
@@ -115,3 +115,18 @@ async def success_page(request: Request,db: Session = Depends(get_db)):
 @router.post("/process_orden/{id_user}")
 async def create_checkout_session_orden(id_user: int,db: Session = Depends(get_db)):
     return create_order_stripe(id_user, db)
+
+@router.put("/inventory/{id_tienda}/{id_producto}")
+async def update_inventorio(inventario:int, inventory: InventarioBasicSchema, db: Session = Depends(get_db)):
+    db_inventory = update_inventory(db, inventario,inventory)
+    if db_inventory is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return db_inventory
+
+@router.get("/producto/{id_orden}")
+def get_cantidad( id_orden: int,  db: Session = Depends(get_db)):
+    return get_product_id_by_order_id(db, id_orden)
+
+@router.get("/inventory/{id_producto}")
+def get_inve( id_producto: int,  db: Session = Depends(get_db)):
+    return get_inventario(db, id_producto)  
