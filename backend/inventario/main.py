@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-app.include_router(routers.router, tags=["Productos"])
+app.include_router(routers.router)
 
 origins = [
 "*"
