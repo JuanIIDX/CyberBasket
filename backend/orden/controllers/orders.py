@@ -1,20 +1,16 @@
 from datetime import datetime
 from msilib import Table
 import select
-from controllers.db import get_db
 
-#from urllib.request import Request
-from tienda.models.models_database import Producto
+
 from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario
-from ..schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario, Producto
+from schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
 import stripe
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
-#from tienda.models.models_database import Producto
 from dotenv import load_dotenv
 import os
-#from http.client import HTTPException
 from pydoc import stripid
 import random
 import string
@@ -27,7 +23,7 @@ def get_ordenes(db: Session):
     return db.query(Orden).all()
 
 def get_orden(db: Session, orden_id: int):
-        return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
+    return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
 
 def create_orden(db: Session, orden: OrderBase):
     orden_model = Orden(**orden.dict())
@@ -110,7 +106,14 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     db.refresh(carrito_compra_model)
     return carrito_compra_model
 
-
+def delete_carrito_compra(db: Session, user_id: int):
+    carrito_compra = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
+    if carrito_compra:
+        for carrito in carrito_compra:
+            db.delete(carrito)
+        db.commit()
+    else:
+        raise ValueError("CarritoCompra with id {} not found".format(user_id))
 
 def get_user_cart(db: Session, user_id: int):
    # return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
@@ -303,6 +306,9 @@ def confirmed_payment(request: Request, db:Session):
             new_envio_table  = crear_envio(db, new_envio)
             new_pago_table = crear_pago(db, new_pago)
             producto= get_product_id_by_order_id(db, int(orden_id))
+            
+            delete_carrito_compra(db, int(usuario))
+            
             for orden in ordenes:
                 if(orden.id_user == int(usuario) and orden.estado != "pagado"):
                     for item in producto:
@@ -313,12 +319,7 @@ def confirmed_payment(request: Request, db:Session):
                             cantidad=get_inventory_quantity_by_store_id(db, orden.id_orden,item.producto_id,orden.id_tienda)
                         )
                         update_inventory(db, inventario,new_inventario)
-                    # new_inventario = InventarioBasicSchema(
-                    #     id_tienda=orden.id_tienda,
-                    #     id_producto=orden.id_producto,
-                    #     cantidad=get_inventory_quantity_by_store_id(db, orden.id_orden,orden.id_producto,orden.id_tienda)
-                    # )
-                    # update_inventory(db, get_inventario(orden.id_tienda,),new_inventario)
+
                     new_orden = OrderBase(
                         id_pago=new_pago_table.id_pago,
                         id_envio=new_envio_table.id_envio,
@@ -330,6 +331,7 @@ def confirmed_payment(request: Request, db:Session):
                         id_user=orden.id_user
                     ) 
                     update_orden(db, orden.id_orden,new_orden)
+            
             return True
         else:
                 # El pago no se realizó correctamente
@@ -350,14 +352,7 @@ def to_dict(obj):
     return {c: getattr(obj, c) for c in columns}
 
 def get_tienda_producto(db: Session, producto_id: int):
-    # result = (
-    #     db.query(Orden)
-    #     .join(Detalle_Orden, Orden.id_orden == Detalle_Orden.id_orden)
-    #     .join(Tienda, Orden.id_tienda == Tienda.id_tienda)
-    #     .filter(Detalle_Orden.producto_id == producto_id)
-    #     .all()
-    # )
-    #result = {obj.id_orden: obj.__dict__ for obj in result}
+
     result = (
         db.query(Inventario.id_tienda)
         .join(Carrito_Compra, Carrito_Compra.id_producto == Inventario.id_producto)

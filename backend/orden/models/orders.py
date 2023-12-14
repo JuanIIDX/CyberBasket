@@ -3,14 +3,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from typing import List
 from pydantic import BaseModel
-#from shared.models.user import User
-#from tienda.models.models_database import Producto, Tienda
 
 Base = declarative_base()
-
-
     
-#DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
+
 class Producto(Base):
     __tablename__='producto'
     id_producto=Column(Integer, primary_key=True,autoincrement=True)
@@ -99,7 +95,7 @@ class Carrito_Compra(Base):
     __tablename__ = "Carrito_Compras"
     id_carrito = Column(Integer, primary_key=True,autoincrement=True)
     id_producto = Column(Integer, ForeignKey("producto.id_producto"))
-    id_user = Column(Integer, ForeignKey("User.id"))
+    id_user = Column(Integer, ForeignKey("users.id"))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
     estado = Column('estado', String(10), nullable=False,default='pendiente')
