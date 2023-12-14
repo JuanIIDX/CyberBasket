@@ -1,20 +1,20 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
   <div class="d-flex align-items-center justify-content-between">
-    <a routerLink="/dashboard" class="logo d-flex align-items-center">
-      <img src="assets/img/logo.png" alt="" />
-      <span class="d-none d-lg-block">Admin</span>
-    </a>
     <i (click)="sidebarToggle()" class="bi bi-list toggle-sidebar-btn"></i>
+    <a routerLink="/" class="logo d-flex align-items-center">
+      <img src="assets/img/logo.png" alt="" />
+      <span class="d-none d-lg-block">Cyberbasket</span>
+    </a>
+    
   </div>
   <div class="search-bar">
     <form
       class="search-form d-flex align-items-center"
-      method="POST"
-      action="#"
+      action="/search"
     >
       <input
         type="text"
-        name="query"
+        name="busqueda"
         placeholder="Search"
         title="Enter search keyword"
       />

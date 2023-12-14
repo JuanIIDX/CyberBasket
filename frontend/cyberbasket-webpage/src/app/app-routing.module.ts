@@ -14,6 +14,8 @@ import{ShopComponent} from './pages/shop/shop.component';
 
 import { PruebaComponent } from './pages/prueba/prueba.component';
 import { ProductComponent } from './pages/product/product.component';
+import { CreateProductComponent } from './pages/create-product/create-product.component';
+import { CreateShopComponent } from './pages/create-shop/create-shop.component';
 
 
 
@@ -68,8 +70,14 @@ const routes: Routes = [
     path: 'shop',
     component: ShopComponent,
   },
-
-
+  {
+    path: 'create_product',
+    component: CreateProductComponent,
+  },
+  {
+    path: 'create_shop',
+    component: CreateShopComponent,
+  },
 
   {
     path: '',
