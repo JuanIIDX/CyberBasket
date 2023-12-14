@@ -1,13 +1,28 @@
-from sqlalchemy.orm import Session, joinedload
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase
-import stripe
+from datetime import datetime
 
+
+##Se importa los modelos
+from models.database_models import Producto, Inventario,Orden, Detalle_Orden, Carrito_Compra,envio,pago
+
+##Se importan los esquemas
+from schemas.order_schema import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
+
+##Se importa la base de datos
+from database.db import get_db
+from sqlalchemy.orm import Session,joinedload
+
+
+
+"""
+---------
+Controladores para ordenes
+---------
+"""
 def get_ordenes(db: Session):
     return db.query(Orden).all()
 
 def get_orden(db: Session, orden_id: int):
-    return db.query(Orden).filter(Orden.id == orden_id).first()
+        return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
 
 def create_orden(db: Session, orden: OrderBase):
     orden_model = Orden(**orden.dict())
@@ -17,7 +32,7 @@ def create_orden(db: Session, orden: OrderBase):
     return orden_model
 
 def update_orden(db: Session, orden_id: int, orden: OrderBase):
-    db_orden = db.query(Orden).filter(Orden.id == orden_id).first()
+    db_orden = db.query(Orden).filter(Orden.id_orden == orden_id).first()
     if db_orden:
         for key, value in orden.dict().items():
             setattr(db_orden, key, value)
@@ -27,11 +42,16 @@ def update_orden(db: Session, orden_id: int, orden: OrderBase):
     return orden_update
 
 def delete_orden(db: Session, orden_id: int):
-    orden = db.query(Orden).filter(Orden.id == orden_id).first()
+    orden = db.query(Orden).filter(Orden.id_orden == orden_id).first()
     db.delete(orden)
     db.commit()
 
-#controladorres detalle orden
+
+"""
+---------
+Controladores para detalles ordenes
+---------
+"""
 
 def get_detalle_ordenes(db: Session):
     return db.query(Detalle_Orden).all()
@@ -60,18 +80,12 @@ def delete_detalle_orden(db: Session, detalle_orden_id: int):
     detalle_orden = db.query(Detalle_Orden).filter(Detalle_Orden.id == detalle_orden_id).first()
     db.delete(detalle_orden)
     db.commit()
-    
-#controladores envio
 
-def crear_envio(db: Session, envio_data: envioBase):
-    envio_model = envio(**envio_data.dict())
-    db.add(envio_model)
-    db.commit()
-    db.refresh(envio_model)
-    return envio_model  
-    
-# ***************************************** PROCESO DE PAGO USANDO STRIPE ****************************
-
+"""
+----
+Rutas para carrito de compras
+---
+"""
 def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     carrito_compra_model = Carrito_Compra(**carrito_compra.dict())
     db.add(carrito_compra_model)
@@ -79,34 +93,25 @@ def crear_carrito_compra(db: Session, carrito_compra: CarritoComprarBase):
     db.refresh(carrito_compra_model)
     return carrito_compra_model
 
-def get_carrito_compra(db: Session, carrito_compra_id: int):
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id == carrito_compra_id).first()
 
 
-def get_user_cart(db: Session, user_id: int):
-     return db.query().options(joinedload(Carrito_Compra.user), joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.user_id == user_id).all()
-
-def create_order_stripe(db: Session, orden: OrderBase):
-    carrito = get_user_cart(db, orden.user_id)
-    impuesto = orden.impuesto
-    subtotal = sum(item.cantidad * item.precio_unitario for item in carrito) 
-    total = subtotal
-    # Crear la orden
-    orden_model = Orden(total)
-    db.add(orden_model)
+"""
+----
+controlador para envio
+---
+"""
+def crear_envio(db: Session, envio_data: envioBase):
+    envio_model = envio(**envio_data.dict())
+    db.add(envio_model)
     db.commit()
-    db.refresh(orden_model)
-    for item in carrito:
-        detalle_orden_dict = {
-        "orden_id": orden_model.id,
-        "producto_id": item.producto_id,
-        "cantidad": item.cantidad,
-        "precio_unitario": item.precio_unitario
-        }
-        create_detalle_orden(db, detalle_orden_dict)
-    return orden_model
+    db.refresh(envio_model)
+    return envio_model  
+
+def crear_pago(db: Session, envio_data: pagoBase):
+    envio_model = pago(**envio_data.dict())
+    db.add(envio_model)
+    db.commit()
+    db.refresh(envio_model)
+    return envio_model
 
 
-
-def payment_intent_stripe():
-    pass

@@ -1,17 +1,32 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float,Double,Boolean,DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from shared.models.user import User
-from tienda.models.models_database import Producto, Tienda
 
-Base = declarative_base()
-    
-#DESCOMENTAR CUANDO SE CREE LA TABLA PAGO, ENVIO Y PRODUCTO
-class Orden(Base):
+
+BaseModel = declarative_base()
+
+class Producto(BaseModel):
+  __tablename__='producto'
+  id_producto=Column(Integer, primary_key=True,autoincrement=True)
+  nombre=Column(String(100))
+  descripcion=Column(String(100))
+  precio=Column(Double)
+  fecha_creacion=Column(DateTime)
+  fecha_actualizacion=Column(DateTime)
+
+class Inventario(BaseModel):
+  __tablename__ = "inventario"
+  id_inventario=Column(Integer, primary_key=True,autoincrement=True)
+  id_tienda=Column(Integer, ForeignKey("tienda.id_tienda"))
+  id_producto=Column(Integer, ForeignKey("producto.id_producto"))
+  cantidad=Column(Integer)
+
+
+class Orden(BaseModel):
     __tablename__ = "Orden"
     id_orden = Column(Integer, primary_key=True)
-    id_tienda = Column(Integer,ForeignKey(Tienda.id_tienda), nullable=True)
-    id_user = Column( Integer,ForeignKey(User.id), nullable=True)   
+    id_tienda = Column(Integer,ForeignKey('tienda.id_tienda'), nullable=True)
+    id_user = Column( Integer,ForeignKey('users.id'), nullable=True)   
     impuesto = Column(Float, nullable=False)
     estado = Column('estado', String(10), nullable=True,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
@@ -19,45 +34,46 @@ class Orden(Base):
     id_envio = Column(Integer, ForeignKey('Envio.id_envio'))
     id_pago = Column(Integer, ForeignKey('Pagos.id_pago'))
 
-    Detalle_Orden = relationship('Detalle_Orden', back_populates='orden')
-    envio = relationship('envio')
+    #Detalle_Orden = relationship('Detalle_Orden', back_populates='orden')
+    #envio_b = relationship("envio", back_populates="orden")
 
-class Detalle_Orden(Base):
+class Detalle_Orden(BaseModel):
     __tablename__ = "Detalle_orden"
     id = Column(Integer, primary_key=True,autoincrement=True)
     id_orden = Column(Integer, ForeignKey('Orden.id_orden'))
-    producto_id = Column(Integer,ForeignKey(Producto.id_producto))
+    producto_id = Column(Integer,ForeignKey('producto.id_producto'))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
-    orden = relationship('Orden',back_populates='Detalle_Orden') 
+    #orden = relationship('Orden',back_populates='Detalle_Orden') 
     #producto = relationship(Producto)
 
-
-class Carrito_Compra(Base):
+class Carrito_Compra(BaseModel):
     __tablename__ = "Carrito_Compras"
     id_carrito = Column(Integer, primary_key=True,autoincrement=True)
-    id_producto = Column(Integer, ForeignKey(Producto.id_producto))
-    id_user = Column(Integer, ForeignKey(User.id))
+    id_producto = Column(Integer, ForeignKey("producto.id_producto"))
+    id_user = Column(Integer, ForeignKey("User.id"))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
     estado = Column('estado', String(10), nullable=False,default='pendiente')
-
+    #producto = relationship('Producto', back_populates='carrito_compra')
     #user = relationship(User)
-    
-class envio(Base):
+
+class envio(BaseModel):
     __tablename__ = "Envio"
     id_envio = Column(Integer, primary_key=True,autoincrement=True)
     costo = Column(Float)
     descripcion = Column(String(200))
     estado = Column('estado', String(10), nullable=False,default='pendiente')
     numero_envio = Column(String(200))
-    orden = relationship('Orden')
-    
-class pago(Base):
+    #orden = relationship("Orden", back_populates="envio_b")
+
+class pago(BaseModel):
     __tablename__ = "Pagos"
     id_pago = Column(Integer, primary_key=True,autoincrement=True)
     tipo_pago = Column(String(200))
     monto = Column(Float)
     estado = Column('estado', String(100), nullable=False,default='pendiente')
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
-    orden = relationship('Orden')
+    #orden = relationship('Orden')
+
+
