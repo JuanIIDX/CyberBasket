@@ -18,10 +18,11 @@ export class TiendaService {
    * 
    */
   postProducto(modelo: Producto_Insertar_Model): Observable<Producto_Insertar_Model> {
-    console.log(`${environment.URL_TEST_INVENTARIO}producto`)
+    const url = `${environment.URL_INVENTARIO}producto`;
+    console.log(url)
     console.log(modelo)
 
-    return this.http.post<Producto_Insertar_Model>(`${environment.URL_TEST_INVENTARIO}producto`, {
+    return this.http.post<Producto_Insertar_Model>(url, {
       tienda_id: modelo.tienda_id,
       nombre_producto: modelo.nombre_producto,
       descripcion_producto: modelo.descripcion_producto,

@@ -26,16 +26,17 @@
   </div>
 </div>
 
+{{pagina_anterior}}
+{{pagina_siguiente}}
 
 <nav aria-label="Page navigation example">
   <ul class="pagination justify-content-center">
-     <li class="page-item"> <a class="page-link" href="/?pagina={{pagina_actual-1}}" aria-label="Previous"> <span aria-hidden="true">&laquo;</span> </a></li>
+     <li class="page-item"> <a class="page-link" href="{{pagina_anterior}}" aria-label="Previous"> <span aria-hidden="true">&laquo;</span> </a></li>
      <li class="page-item"><a class="page-link" href="#">1</a></li>
      <li class="page-item active" aria-current="page"> <a class="page-link" href="#">2</a></li>
      <li class="page-item"><a class="page-link" href="#">3</a></li>
-     <li class="page-item"> <a class="page-link" href="/?pagina={{pagina_actual+1}}" aria-label="Next"> <span aria-hidden="true">&raquo;</span> </a></li>
+     <li class="page-item"> <a class="page-link" href="{{pagina_siguiente}}" aria-label="Next"> <span aria-hidden="true">&raquo;</span> </a></li>
   </ul>
 </nav>
 
-<button type="button" class="btn btn-primary" (click)="imprime_datos()">Primary</button> 
 </main>

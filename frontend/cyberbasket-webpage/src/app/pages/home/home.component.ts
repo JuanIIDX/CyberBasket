@@ -19,8 +19,8 @@ export class HomeComponent {
   pagina_actual: number = 0;
   elementos_por_pagina: number = 8;
   numero_paginas: number = 0;
-  pagina_siguiente: number = 0;
-  pagina_anterior: number = 0;
+  pagina_siguiente: string = '';
+  pagina_anterior: string = '';
 
 
 
@@ -29,6 +29,13 @@ export class HomeComponent {
     if (this.pagina_actual == null) {
       this.pagina_actual = 0;
     }
+
+
+  
+
+    this.pagina_siguiente="/?pagina="+(Number(this.pagina_actual)+1).toString();
+    
+    this.pagina_anterior="/?pagina="+(Number(this.pagina_actual)+-1).toString();
  
     this.carga_datos_home();
     
