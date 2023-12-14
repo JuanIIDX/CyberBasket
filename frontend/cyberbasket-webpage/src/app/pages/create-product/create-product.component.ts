@@ -22,16 +22,12 @@ export class CreateProductComponent {
   stock: number = 0;
 
   /* Variables de json*/
-  categoria: Map<number, string> = new Map<number, string>();
   tiendas: Map<number, string> = new Map<number, string>();
 
 
   /* Variables de imagenes*/
   lista_imagenes: string[] = ["","","","",""];
   imageError: string;
-
-
-
 
   constructor(public tiendaService: TiendaService) {}
 
@@ -94,29 +90,26 @@ export class CreateProductComponent {
   }
 
 
-  /* Funciones de producto*/
-  impresion() {
-    console.log(this.lista_imagenes);
-  }
-
-
-  
+  /**
+   * Llama al metodo post
+   * 
+   */
   llamarMetodoPost() {
     const modelo:  Producto_Insertar_Model = new Producto_Insertar_Model();
 
-
-    //ARREGLAR LUEGO LA TIENDA ID Y LA CATEGORIA-------------------------------------------------------------
     modelo.tienda_id= 1;
     modelo.nombre_producto= this.titulo;
     modelo.descripcion_producto= this.descripcion;
-    modelo.precio_producto= this.precio;
+    modelo.precio_producto= 10000;
     modelo.id_categoria= 1;
-    modelo.stock= this.stock;
+    modelo.stock= 100;
     modelo.lista_imagenes = this.lista_imagenes;
+
+    console.log(this.lista_imagenes);
 
     this.tiendaService.postProducto(modelo).subscribe(
       (datos) => {
-/*         this.loadingService.loadingController.dismiss(); */
+/*      this.loadingService.loadingController.dismiss(); */
         console.log('Registro almacenado correctamente.');
         alert('Registro almacenado correctamente.');
         
