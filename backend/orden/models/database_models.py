@@ -77,3 +77,28 @@ class pago(BaseModel):
     #orden = relationship('Orden')
 
 
+
+class User(BaseModel):
+  __tablename__ = "users"
+
+  id = Column(Integer, primary_key=True)
+  name = Column(String(100), nullable=False)
+  last_name = Column(String(100), nullable=True)
+  email = Column(String(100), unique=True)
+  password = Column(String(100))
+  creation_date = Column(DateTime(timezone=False))
+  update_date = Column(DateTime(timezone=False))
+  status = Column(String(20))
+  role_id = Column(Integer, ForeignKey("roles.id"))
+
+  #role = relationship("Role", back_populates="users")
+  #directions = relationship("UserDirections", back_populates="user")
+
+
+class Role(BaseModel):
+  __tablename__ = "roles"
+
+  id = Column(Integer, primary_key=True)
+  name = Column(String(100))
+  #users = relationship("User", back_populates="role")
+

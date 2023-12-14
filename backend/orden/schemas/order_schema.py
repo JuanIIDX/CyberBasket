@@ -66,4 +66,9 @@ class OrderInfo(BaseModel):
     quantity: int = 1  # Cantidad de productos (por defecto 1)
     cart_items: List[CartItem] = None  # Carrito de compras (opcional)
 
+class InventarioBasicSchema(BaseModel):
+    id_tienda: int
+    id_producto: int
+    cantidad:int
+
 
