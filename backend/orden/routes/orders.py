@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-from fastapi import APIRouter, Depends, HTTPException,Request
-from fastapi.responses import HTMLResponse
-=======
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 
 from http.client import HTTPException
 from pipes import Template
