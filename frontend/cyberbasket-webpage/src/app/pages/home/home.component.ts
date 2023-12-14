@@ -50,9 +50,6 @@ export class HomeComponent {
     console.log(this.imagenes_productos_home);
   }
 
-
-
-
   //Carga datos dedsde el servicio de inventario
   carga_datos_home(): Promise<any> {
     return new Promise((resolve) => {

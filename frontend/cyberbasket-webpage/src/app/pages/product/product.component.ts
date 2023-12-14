@@ -24,8 +24,11 @@ export class ProductComponent {
   
   //marca_producto: string="";
 
+
+
   //imagenes producto
   lista_imagenes: string [];
+  imagen_principal: string="";
 
   constructor(private route: ActivatedRoute,private http: HttpClient,private inventarioServicio:InventarioService) { }
 

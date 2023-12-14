@@ -16,6 +16,8 @@ import { PruebaComponent } from './pages/prueba/prueba.component';
 import { ProductComponent } from './pages/product/product.component';
 import { CreateProductComponent } from './pages/create-product/create-product.component';
 import { CreateShopComponent } from './pages/create-shop/create-shop.component';
+import { InventarioService } from './services/inventario.service';
+import { InventoryComponent } from './pages/inventory/inventory.component';
 
 
 
@@ -77,6 +79,10 @@ const routes: Routes = [
   {
     path: 'create_shop',
     component: CreateShopComponent,
+  },
+  {
+    path: 'inventory',
+    component: InventoryComponent,
   },
 
   {

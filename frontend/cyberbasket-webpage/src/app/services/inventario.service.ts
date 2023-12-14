@@ -7,8 +7,10 @@ import {  Producto_Json_Solo_Model } from 'src/models/producto.model';
   providedIn: 'root'
 })
 export class InventarioService {
+  inventario_json: any;
 
   constructor(private http: HttpClient) { }
+
 
   /*
   *Metodo que carga los productos del home

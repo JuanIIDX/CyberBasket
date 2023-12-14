@@ -30,6 +30,7 @@ export class LoginComponent {
 
   onLogin() {
     if (this.loginForm.invalid) {
+      alert("error al login");
       return;
     }
 

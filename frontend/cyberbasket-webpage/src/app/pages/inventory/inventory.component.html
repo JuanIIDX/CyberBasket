@@ -1,1 +1,60 @@
-<p>inventory works!</p>
+<main id="main" class="main">
+   <div class="pagetitle">
+      <h1>Inventario</h1>
+      <nav>
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+            <li class="breadcrumb-item active">Inventario</li>
+         </ol>
+      </nav>
+   </div>
+   <div class="">
+      <div class="card info-card sales-card">
+         <div class="card-body pb-0">
+
+              <table class="table table-borderless">
+                 <thead>
+                    <tr>
+                       <th scope="col">Imagen</th>
+                       <th scope="col">Producto</th>
+                       <th scope="col">Precio</th>
+                       <th scope="col">Vendidos</th>
+                       <th scope="col">Total</th>
+                    </tr>
+                 </thead>
+      
+                 <tbody>
+                   <tr *ngFor="let order of inventario_json">      
+                     <th scope="row"><a href="product?id={{ order.id_inventario}}"><img src="{{ order.imagen}}" alt=""></a></th>
+                     <td>{{order.product}}</td>
+                     <td>{{order.price}}</td>
+                     <td>{{order.status}}</td>
+                     <td>{{order.customer}}</td>
+      
+      
+      
+      
+             
+                   </tr>
+                 </tbody>
+      
+              </table>
+           </div>
+
+      </div>
+   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</main>

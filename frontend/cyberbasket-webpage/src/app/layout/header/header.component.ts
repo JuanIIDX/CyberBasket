@@ -35,4 +35,13 @@ export class HeaderComponent {
     this.document.body.classList.toggle('toggle-sidebar');
   }
 
+
+
+  logout() {
+    sessionStorage.removeItem("user");
+    console.log("texto");
+    console.log(sessionStorage);
+    window.location.href = "/";
+  }
+
 }
