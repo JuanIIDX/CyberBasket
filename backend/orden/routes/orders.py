@@ -1,15 +1,8 @@
-
 from http.client import HTTPException
-from pipes import Template
-#from urllib.request import Request
-import os
 from fastapi import APIRouter, Depends, Request, HTTPException,Request
 from fastapi.responses import HTMLResponse
-#from jinja2 import Template
 import jinja2
-#from starlette.responses import TemplateResponse
-from schemas.orders import CarritoComprarBase, InventarioBasicSchema, OrderBase, OrderDetailBase, envioBase, pagoBase
-
+from schemas.orders import CarritoComprarBase, InventarioBasicSchema, OrderBase, OrderDetailBase, envioBase
 from sqlalchemy.orm import Session
 from controllers.db import get_db
 from controllers.orders import crear_carrito_compra, crear_envio, get_inventario, get_inventory_quantity_by_store_id, get_ordenes, get_orden, create_orden, get_product_id_by_order_id, get_user_cart, update_inventory, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
@@ -68,10 +61,6 @@ def delete_new_detalle_orden(detalle_orden_id: int, db: Session = Depends(get_db
 @router.post("/carrito_compras")
 def create_new_carrito_compra(carrito_compra: CarritoComprarBase, db: Session = Depends(get_db)):
     return crear_carrito_compra(db, carrito_compra)
-
-@router.get("/carrito_compras/carrito/{id_carrito}")
-def get_carrito(id_user: int, db: Session = Depends(get_db)):
-    return True#get_carrito_compra(db, id_user)
 
 # rutas para envio
 

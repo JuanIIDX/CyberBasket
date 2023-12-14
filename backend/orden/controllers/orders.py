@@ -1,8 +1,4 @@
 from datetime import datetime
-from msilib import Table
-import select
-
-
 from sqlalchemy.orm import Session, joinedload
 from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario, Producto
 from schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
@@ -11,11 +7,10 @@ from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import os
-from pydoc import stripid
 import random
 import string
 from sqlalchemy.orm import class_mapper
-from sqlalchemy import join, distinct, func, select, create_engine, text
+from sqlalchemy import join, func
 
 load_dotenv()
 
