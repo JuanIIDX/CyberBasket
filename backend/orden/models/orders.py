@@ -88,7 +88,7 @@ class Detalle_Orden(Base):
     __tablename__ = "Detalle_orden"
     id = Column(Integer, primary_key=True,autoincrement=True)
     id_orden = Column(Integer, ForeignKey('Orden.id_orden'))
-    producto_id = Column(Integer,ForeignKey('Producto.id_producto'))
+    producto_id = Column(Integer,ForeignKey('producto.id_producto'))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
     orden = relationship('Orden',back_populates='Detalle_Orden') 
@@ -98,7 +98,7 @@ class Detalle_Orden(Base):
 class Carrito_Compra(Base):
     __tablename__ = "Carrito_Compras"
     id_carrito = Column(Integer, primary_key=True,autoincrement=True)
-    id_producto = Column(Integer, ForeignKey("Producto.id_producto"))
+    id_producto = Column(Integer, ForeignKey("producto.id_producto"))
     id_user = Column(Integer, ForeignKey("User.id"))
     cantidad = Column(Integer)
     precio_unitario = Column(Float)
@@ -125,9 +125,11 @@ class pago(Base):
     fecha_creacion = Column('fecha_creacion', Date, nullable=False)
     orden = relationship('Orden')
 
+
 class Inventario(Base):
     __tablename__ = "Inventario"
     id_inventario=Column(Integer, primary_key=True,autoincrement=True)
     id_tienda=Column(Integer, ForeignKey("tienda.id_tienda"))
     id_producto=Column(Integer, ForeignKey("producto.id_producto"))
     cantidad=Column(Integer)
+

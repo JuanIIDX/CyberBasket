@@ -5,17 +5,11 @@ import select
 #from urllib.request import Request
 from tienda.models.models_database import Producto
 from sqlalchemy.orm import Session, joinedload
-
-from ..models.orders import Inventario, Orden, Detalle_Orden, Carrito_Compra, Tienda, envio,Producto, pago
+from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario
 from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
 import stripe
-from fastapi import FastAPI, HTTPException, Depends, Request
-
-from ..models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago
-from ..schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
-import stripe
-from fastapi import FastAPI, HTTPException, Depends,Request
-from fastapi.responses import JSONResponse,RedirectResponse
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
 #from tienda.models.models_database import Producto
 from dotenv import load_dotenv
 import os
@@ -24,7 +18,7 @@ from pydoc import stripid
 import random
 import string
 from sqlalchemy.orm import class_mapper
-from sqlalchemy import join, distinct
+from sqlalchemy import join, distinct, func
 
 load_dotenv()
 
@@ -32,7 +26,7 @@ def get_ordenes(db: Session):
     return db.query(Orden).all()
 
 def get_orden(db: Session, orden_id: int):
-    return db.query(Orden).filter(Orden.id_orden == orden_id).first()
+        return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_orden == orden_id).first()
 
 def create_orden(db: Session, orden: OrderBase):
     orden_model = Orden(**orden.dict())
@@ -122,32 +116,62 @@ def get_user_cart(db: Session, user_id: int):
    print(db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all())
    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
-def get_carrito_compra(db: Session, carrito: int):
-    return db.query(Carrito_Compra).filter(Carrito_Compra.id_carrito == carrito).first()
+def get_inventory_quantity_by_store_id(db: Session, id_tienda: int):
+    # Query to get the inventory quantity by store id
+    result = (
+    db.query(func.sum(Inventario.cantidad))
+    .join(Orden, Orden.id_tienda == Inventario.id_tienda)
+    .filter(Orden.id_tienda == id_tienda)
+    .scalar()
+)
+    print(result)
+    #result = {obj.cantidad: obj.__dict__ for obj in result}
+    return result
 
-     
-def create_order_stripe(db: Session, orden: OrderBase):
-    carrito = get_user_cart(db, orden.user_id)
+def create_order_stripe(id_user : int,db: Session):
+    carrito = db.query(Carrito_Compra).filter(Carrito_Compra.id_user == id_user).all()
+    impuesto_inicial = 0.19
+    mi_datetime = datetime.now()
+    mi_fecha = mi_datetime.date()
     subtotal = sum(item.cantidad * item.precio_unitario for item in carrito) 
     total = subtotal
-    # Crear la orden
-    orden_model = Orden(total,estado='pendiente')
-    db.add(orden_model)
-    db.commit()
-    db.refresh(orden_model)
+
+    # Obtener los id_tienda directamente en esta función
+    id_tienda_list = []
+    print("CARRITO",len(carrito))
     for item in carrito:
-        detalle_orden_dict = {
-        "orden_id": orden_model.id,
-        "producto_id": item.producto_id,
-        "cantidad": item.cantidad,
-        "precio_unitario": item.precio_unitario
-        }
-        create_detalle_orden(db, detalle_orden_dict)
-    return orden_model
+        inventarios = db.query(Inventario.id_tienda).filter(Inventario.id_producto == item.id_producto).all()
+        id_tienda_list.extend([inventario[0] for inventario in inventarios])
 
-
-
-
+    ordenes = []
+    print("ID TIENDA LIST",id_tienda_list)
+    # Crear una orden para cada tienda
+    for id_tienda in id_tienda_list:
+        orden_model = OrderBase(
+            impuesto=impuesto_inicial,
+            estado="en proceso",
+            fecha_creacion=mi_fecha,
+            fecha_actualizacion=mi_fecha,
+            id_user=id_user,
+            id_tienda=id_tienda
+        )
+        ordenes.append(orden_model)
+    print("ORDNE MODEL",ordenes)
+    if(len(ordenes) > 0):
+        for i in ordenes:
+            for item in carrito:
+                orden_creada = create_orden(db,i)
+                detalle_orden_dict = OrderDetailBase(
+                    id_orden=orden_creada.id_orden,
+                    producto_id=item.id_producto,
+                    cantidad=item.cantidad,
+                    precio_unitario=item.precio_unitario
+                )
+                detalles = create_detalle_orden(db, detalle_orden_dict)
+            if detalles is not None:
+                return {"orden_creada": detalles.id}
+            else:
+                return None
 # funciona
 def create_checkout_session(order_id: int,db):
     try:
@@ -204,18 +228,14 @@ def confirmed_payment(request: Request, db:Session):
             # Actualizar los datos de la orden
             orden_id = session.metadata.get('orden_id')
             get_orden_payment= get_orden(db, int(orden_id))
-            if(get_orden_payment.id_orden == int(orden_id)):{
-                print("Mi orden :",get_orden_payment.id_orden)
-                
-                
-            }
-            print("Mi orden :",get_orden_payment.id_orden)
+            ordenes = get_ordenes(db)
+            usuario = get_orden_payment.id_user
             pago = {
-                "tipo_pago": "card",
-                "monto": session.amount_total,
-                "estado": str(session.payment_status),
-                "fecha_creacion": mi_fecha,
-                
+            "tipo_pago": "card",
+            "monto": session.amount_total,
+            "estado": str(session.payment_status),
+            "fecha_creacion": mi_fecha,
+            
             }
             numero_envio = generate_tracking_number()
             new_envio = {
@@ -229,25 +249,28 @@ def confirmed_payment(request: Request, db:Session):
 
             new_envio_table  = crear_envio(db, new_envio)
             new_pago_table = crear_pago(db, new_pago)
-            
-            new_orden = OrderBase(
-                id_pago=new_pago_table.id_pago,
-                id_envio=new_envio_table.id_envio,
-                impuesto=get_orden_payment.impuesto,
-                estado="pagado",
-                fecha_creacion=get_orden_payment.fecha_creacion,
-                fecha_actualizacion=mi_fecha,
-                id_tienda=get_orden_payment.id_tienda,
-                id_user=get_orden_payment.id_user
-            ) 
-            update_orden(db, get_orden_payment.id_orden,new_orden)
+            for orden in ordenes:
+                if(orden.id_user == int(usuario) and orden.estado != "pagado"):
+                    
+                    new_orden = OrderBase(
+                        id_pago=new_pago_table.id_pago,
+                        id_envio=new_envio_table.id_envio,
+                        impuesto=orden.impuesto,
+                        estado="pagado",
+                        fecha_creacion=orden.fecha_creacion,
+                        fecha_actualizacion=mi_fecha,
+                        id_tienda=orden.id_tienda,
+                        id_user=orden.id_user
+                    ) 
+                    update_orden(db, orden.id_orden,new_orden)
             return True
         else:
-            # El pago no se realizó correctamente
+                # El pago no se realizó correctamente
             raise HTTPException(status_code=400, detail="El pago no se realizó correctamente")
     except stripe.error.StripeError as e:
-        # Maneja errores de Stripe
-        raise HTTPException(status_code=400, detail=str(e))
+            # Maneja errores de Stripe
+            raise HTTPException(status_code=400, detail=str(e))
+                    
 
 def generate_tracking_number():
     numbers = ''.join(random.choices(string.digits, k=5))
@@ -311,7 +334,7 @@ def create_order_from_cart(db: Session, user_id: int):
             fecha_creacion=mi_fecha,
             fecha_actualizacion=mi_fecha,
             id_tienda=tienda,
-            id_user=get_carrito_compra.id_user
+           # id_user=get_carrito_compra.id_user
         )
         create_orden(db, orden)
 
@@ -329,4 +352,5 @@ def create_order_from_cart(db: Session, user_id: int):
 
     except Exception as e:
         return {"error": str(e)}
+    
     
