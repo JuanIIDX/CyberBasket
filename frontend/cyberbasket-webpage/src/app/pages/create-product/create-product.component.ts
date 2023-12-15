@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { TiendaService } from 'src/app/services/tienda.service';
 import { Producto_Insertar_Model } from 'src/models/producto.model';
+import { HttpClient } from '@angular/common/http';
+import { UserModel } from 'src/models/user.model';
 
 @Component({
   selector: 'app-create-product',
@@ -11,6 +13,7 @@ export class CreateProductComponent {
 
   /* Variables de muestra*/
   tienda_actual: string = "Tienda 1";
+  storedUserString = sessionStorage.getItem('user');
 
 
   /* Variables de producto*/
@@ -22,16 +25,30 @@ export class CreateProductComponent {
   stock: number = 0;
 
   /* Variables de json*/
-  tiendas: Map<number, string> = new Map<number, string>();
+  activeUser: UserModel;
+  id_usuario: number = 0;
+  id_tienda: number = 0;
+  nombre_tienda: string = "";
+
 
 
   /* Variables de imagenes*/
   lista_imagenes: string[] = ["","","","",""];
   imageError: string;
 
-  constructor(public tiendaService: TiendaService) {}
+  constructor(public tiendaService: TiendaService,private http: HttpClient) {}
 
   ngOnInit(): void {
+    if (this.storedUserString) {
+      const storedUser = JSON.parse(this.storedUserString);
+
+      this.activeUser = new UserModel();
+      this.activeUser.id = storedUser.id;
+      this.id_usuario = storedUser.id;
+      console.log(this.id_usuario);
+      this.get_id_tienda();
+
+    }
 
   }
 
@@ -97,12 +114,12 @@ export class CreateProductComponent {
   llamarMetodoPost() {
     const modelo:  Producto_Insertar_Model = new Producto_Insertar_Model();
 
-    modelo.tienda_id= 1;
+    modelo.tienda_id= this.tienda_id;
     modelo.nombre_producto= this.titulo;
     modelo.descripcion_producto= this.descripcion;
-    modelo.precio_producto= 10000;
-    modelo.id_categoria= 1;
-    modelo.stock= 100;
+    modelo.precio_producto= this.precio;
+    modelo.id_categoria= this.id_categoria;
+    modelo.stock=this.stock ;
     modelo.lista_imagenes = this.lista_imagenes;
 
     console.log(this.lista_imagenes);
@@ -123,6 +140,26 @@ export class CreateProductComponent {
       }
     );
   }
+
+
+
+get_id_tienda() {
+  const url = 'https://micro-tienda.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/tienda_de_user?usuario_id='+this.id_usuario; // Reemplaza con la URL de tu endpoint
+
+  this.http.get(url).subscribe(
+    (data) => {
+      console.log(data); // Imprime el JSON en la consola
+      this.id_tienda= data["id_tienda"];
+      this.nombre_tienda= data["nombre"];
+      alert('Su usuario si tiene tienda');
+
+    },
+    (error) => {
+      console.log('Error al realizar la solicitud GET:', error);
+      alert('El usuario no tiene tiendas');
+    }
+  );
+}
   
 
 

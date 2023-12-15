@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { TiendaService } from 'src/app/services/tienda.service';
 
+import { HttpClient } from '@angular/common/http';
+import { UserModel } from 'src/models/user.model';
+
 @Component({
   selector: 'app-create-shop',
   templateUrl: './create-shop.component.html',
@@ -9,19 +12,32 @@ import { TiendaService } from 'src/app/services/tienda.service';
 export class CreateShopComponent {
 
   /* Variables de muestra*/
+  id_usuario: number = 1;
   nombre_tienda: string = "";
   descripcion: string = "";
   id_direccion:number=1;
   estado:boolean=true;
+  storedUserString = sessionStorage.getItem('user');
+  activeUser: UserModel;
 
 
   /* Variables de imagenes*/
   imagen_base64:string;
   imageError: string;
 
-  constructor(public tiendaService:TiendaService) {}
+  constructor(public tiendaService:TiendaService, public http:HttpClient) {}
 
   ngOnInit(): void {
+    if (this.storedUserString) {
+      const storedUser = JSON.parse(this.storedUserString);
+
+      this.activeUser = new UserModel();
+      this.activeUser.id = storedUser.id;
+      this.id_usuario = storedUser.id;
+      console.log(this.id_usuario);
+
+
+    }
 
   }
 
@@ -84,16 +100,38 @@ export class CreateShopComponent {
    * Llama al metodo post
    * 
    */
-  post_nueva_tienda() {
-    console.log('info')
-    console.log(this.id_direccion);
-    console.log(this.nombre_tienda);
-    console.log(this.descripcion);
-    console.log(this.estado);
-    console.log(this.imagen_base64);  }
+
+
+
+
   
 
 
+  post_nueva_tienda() {
+    const payload = {
+      id_usuario:this.id_usuario,
+      id_direccion: this.id_direccion,
+      nombre: this.nombre_tienda,
+      descripcion: this.descripcion,
+      estado: this.estado,
+    };
 
-
+    this.http.post('https://micro-tienda.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/tienda', payload)
+      .subscribe(
+        response => {
+          console.log('Post successful:', response);
+          alert("Se creo la tienda");
+          // Handle the response here
+        },
+        error => {
+          alert("No se pueden crear mas tiendas");
+          // Handle the error here
+        }
+      );
+  }
 }
+
+
+
+
+
