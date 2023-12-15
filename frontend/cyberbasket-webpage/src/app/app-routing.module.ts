@@ -18,6 +18,7 @@ import { CreateProductComponent } from './pages/create-product/create-product.co
 import { CreateShopComponent } from './pages/create-shop/create-shop.component';
 import { InventarioService } from './services/inventario.service';
 import { InventoryComponent } from './pages/inventory/inventory.component';
+import { BasketComponent } from './pages/basket/basket.component';
 
 
 
@@ -83,6 +84,10 @@ const routes: Routes = [
   {
     path: 'inventory',
     component: InventoryComponent,
+  },
+  {
+    path: 'basket',
+    component: BasketComponent,
   },
 
   {

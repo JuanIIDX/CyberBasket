@@ -38,7 +38,13 @@ export class LoginComponent {
       (data: any) => {
         sessionStorage.setItem("access_token", data.access_token);
         sessionStorage.setItem("user", JSON.stringify(data.user));
-        this.router.navigateByUrl("/dashboard");
+        
+        this.router.navigateByUrl('/',{skipLocationChange:true}).then(()=>{
+          this.router.navigate([`/`]).then(()=>{
+            console.log(`After navigation I am on:${this.router.url}`)
+          })
+        })
+
       },
       (err: HttpErrorResponse) => {
         alert(err.error.detail);

@@ -25,11 +25,12 @@ import { ContactComponent } from './contact/contact.component';
 import { OptionsComponent } from './options/options.component';
 import { InfoComponent } from './info/info.component';
 import { CreateShopComponent } from './create-shop/create-shop.component';
+import { BasketComponent } from './basket/basket.component';
 
 
 
 @NgModule({
-    declarations: [DashboardComponent,HomeComponent, PruebaComponent, LoginComponent, RegisterComponent, SearchComponent, ProductsComponent, RegisterShopComponent, ProductComponent, BuyInfoComponent, ShopComponent, CreateProductComponent, InventoryComponent, ProfileComponent, ContactComponent, OptionsComponent, InfoComponent, CreateShopComponent],
+    declarations: [DashboardComponent,HomeComponent, PruebaComponent, LoginComponent, RegisterComponent, SearchComponent, ProductsComponent, RegisterShopComponent, ProductComponent, BuyInfoComponent, ShopComponent, CreateProductComponent, InventoryComponent, ProfileComponent, ContactComponent, OptionsComponent, InfoComponent, CreateShopComponent, BasketComponent],
     exports: [DashboardComponent,HomeComponent,PruebaComponent],
     imports: [CommonModule,RouterModule,HttpClientModule,FormsModule,ReactiveFormsModule,NgApexchartsModule],
   })
