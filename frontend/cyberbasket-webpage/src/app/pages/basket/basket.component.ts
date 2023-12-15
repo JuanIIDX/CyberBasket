@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { tap } from 'rxjs';
@@ -22,7 +23,8 @@ export class BasketComponent implements OnInit {
     private ordenService: OrdenService,
     private route: ActivatedRoute,
     private router: Router,
-    private inventarioService: InventarioService
+    private inventarioService: InventarioService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -118,4 +120,63 @@ export class BasketComponent implements OnInit {
       );
     });
   }
+
+
+  genera_compra() {
+
+    this.genera_orden();
+
+  }
+
+  genera_orden() {
+    const url = 'https://micro-ordenes.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/orden/process_orden/'+this.activeUser.id;
+    const data = { key: 'value' };
+
+    this.http.post(url, data).subscribe(
+      (response:any) => {
+        const orden_creada = response["Ordenes creadas"][0];
+        this.link_pago_stripe(orden_creada);
+
+        alert("Se generaron las ordenes de compra");
+      },
+      (error) => {
+        alert("Error al generar las ordenes de compra");
+      }
+    );
+  }
+
+  link_pago_stripe(id_orden:49) {
+    const url = 'https://micro-ordenes.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/orden/create-checkout-session?order_id=35';
+    const data = { key: 'value' };
+
+    this.http.post(url, data).subscribe(
+      (response: any) => {
+        console.log(response.session);
+        alert("Se genero el link de stripe");
+        if(response.session!=null){
+          window.location.href = response.session;
+        }
+
+        if(response.session==null){
+          return "";
+        }
+        else{
+          return response.session;
+        }
+
+
+        
+        
+      },
+      (error) => {
+        alert("Error al generar las ordenes de compra");
+        return "";
+      }
+    );
+  }
+
+
+
+
+
 }
