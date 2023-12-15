@@ -141,3 +141,14 @@ def get_consulta_categoria_x_tienda2(id_tienda: int, db: Session = Depends(get_d
 def create_new_categoria_tienda2(new_tienda: categoria_tiendaXtienda, db: Session = Depends(get_db)):
     rol = create_categoria_tiendaXtienda(new_tienda, db)
     return rol
+
+
+
+#Consigue un producto especifico
+@router.get("/producto/ejemploparasubirproducto/{nombre_producto}")
+def get_producto(nombre_producto: str, db: Session = Depends(get_db)):
+    exist = exist_producto(nombre_producto, db)
+    if not exist:
+        return {"message": "User not exist"}
+
+    return Producto(**exist.__dict__)
