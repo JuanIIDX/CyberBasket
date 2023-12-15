@@ -1,14 +1,51 @@
 from fastapi import APIRouter, Depends
-from schemas.tienda_schema import Crea_producto,Crea_inventario
+from schemas.product_schema import *
 from database.db import get_db
 from sqlalchemy.orm import Session
-from controllers.tienda_controller import *
+from controllers.inventario_controller import *
+from models.database_models import *
 
-
-##LUEGO SEPARAR ROUTERS SEGUN RESPONSABILIDAD
-
+"""Organizar mejor los imports"""
 
 router = APIRouter()
+
+
+
+@router.post("/producto",tags=["Producto"])
+async def insert_prueba(info: insercion_producto_front_schema, db: Session = Depends(get_db)):
+    """
+    Agrega un producto a la base de datos
+
+    Parameters:
+    - info: Informacion del producto a agregar
+
+    Returns:
+    - id: id del producto agregado
+
+    Excepcion:
+    - error: error de procesamiento
+    """
+    try:
+        #Se agrega los datos a la tabla productos
+        id_producto_nuevo=insercion_tabla_producto(info, db)
+        #Se agrega los datos a la tabla categorias
+        insercion_tabla_inventario(id_producto_nuevo,info, db)
+        #Se inserta en la tabla categoria
+        insercion_tabla_categoria(id_producto_nuevo,info, db)
+        #Se inserta la imagen principal
+        insercion_imagen_principal(id_producto_nuevo,info, db)
+        #Se insertan las imagenes decorativas
+        insercion_imagenes_decorativas(id_producto_nuevo,info,db)
+        return {"id": id_producto_nuevo}
+    except Exception as e:
+        #Si hay un error se hace rollback
+        db.rollback()
+        print(e)
+        return {"error": "error de procesamiento"+str(e)}
+    finally:
+        db.close()
+
+
 
 #Agrega producto
 @router.post("/producto")
@@ -52,24 +89,68 @@ def create_new_inventario(new_inventario: Crea_inventario, db: Session = Depends
     return rol
 
 
-
-
-
 #Consigue todos los inv
 @router.get("/inventario",response_model=list[Crea_inventario])
 def get_all_inventario(db: Session = Depends(get_db)):
     return all_Inventario(db)
 
+#Consigue un inventario de una tienda en especifico
+@router.get("/inventario/tienda",response_model=list[inventario_schema_pagina])
+def get_all_inventario(id_tienda:int,db: Session = Depends(get_db)):
+    try:
+        return db.query(Inventario).filter(Inventario.id_tienda==id_tienda).all()
+    except Exception as e:
+        print("Esta incorrecto")
+        print(e)
+    finally:
+        db.close()
+
+
+
 
 #Agrega tienda
 @router.post("/tienda")
-def create_new_shop(new_tienda: tiendaModel, db: Session = Depends(get_db)):
-    exist = exist_tienda(new_tienda.nombre, db)
-    if exist:
-        return {"message": "Shop name already exist"}
+def create_new_shop(b_tienda: tienda_modelo_creacion_pagina, db: Session = Depends(get_db)):
+    try:
+        exist = db.query(UsuarioxTienda).filter(UsuarioxTienda.id_usuario== b_tienda.id_usuario).first()
+        if exist:
+            return {"message": "El usuario no puede tener mas de dos tiendas"}
+        
+        new_tienda = tienda_modelo(
+            id_direccion=b_tienda.id_direccion,
+            nombre=b_tienda.nombre,
+            descripcion=b_tienda.descripcion,
+            estado=b_tienda.estado
+        )
+        
+        tienda = Tienda(**new_tienda.dict())
+        db.add(tienda)
+        db.commit()
+        db.refresh(tienda)
+        
 
-    rol = create_tiendas(new_tienda, db)
-    return rol
+        relacion_tienda = tienda_relacion_user_pagina(
+            id_usuario=b_tienda.id_usuario,
+            id_tienda=tienda.id_tienda
+        )
+
+        usu_tienda_model = UsuarioxTienda(**relacion_tienda.dict())
+        db.add(usu_tienda_model)
+        db.commit()
+        
+
+        return usu_tienda_model
+    except Exception as e:
+        print("Esta incorrecto")
+        print(e)
+        return {"error": "error de procesamiento"+str(e)}
+    finally:
+        db.close()
+
+
+
+
+
 
 #Devuelve todas las tiendas
 @router.get("/tienda",response_model=list[tiendaModel])
@@ -94,50 +175,29 @@ async def get_consulta(tienda_id: int, db: Session = Depends(get_db)):
 
 
 """ Consultas categorias por tiendas """
-
-
-#Agrega categoria por tienda
-@router.post("/categoria_tienda")
-def create_new_categoria_tienda(new_tienda: categoria_tienda, db: Session = Depends(get_db)):
-    exist = exist_categoria_tienda(new_tienda.nombre, db)
-    if exist:
-        return {"message": "Shop name already exist"}
-
-    rol = create_categoria_tienda(new_tienda, db)
-    return rol
-
-
-
-#Consigue todos las categorias de las tiendas
-@router.get("/categoria_tienda",response_model=list[categoria_tienda])
-def get_all_categoria_tienda(db: Session = Depends(get_db)):
-    return all_Categoria_tienda(db)
-
 # Ruta de ejemplo en FastAPI
-""" @router.get("/consulta_tiendas_x_categoria/{categoria_id}",response_model=list[tiendaModel])
-async def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get_db)):
+@router.get("/tienda_de_user",response_model=id_usuario_tienda_schema)
+async def get_consulta(usuario_id: int, db: Session = Depends(get_db)):
     try:
-        result = get_tiendas_por_categoria(categoria_id,db)
-        print('jhony' + result)
-        data = [{"nombre": nombre, "estado": estado} for nombre, estado in result]
-        return {"data": data}
+        result = (
+        db.query(UsuarioxTienda.id_tienda, Tienda.nombre)
+        .join(UsuarioxTienda, UsuarioxTienda.id_tienda == Tienda.id_tienda)
+        .filter(UsuarioxTienda.id_usuario == usuario_id)
+        .one()
+        )
+        print(result)
+        return result
+
+
     except Exception as e:
         print("Esta incorrecto")
+        print(e)
     finally:
-        db.close()  """
+        db.close()
 
-@router.get("/consulta_tiendas_x_categoria/{categoria_id}",response_model=list[tiendaModel])
-def get_consulta_categoria_x_tienda(categoria_id: int, db: Session = Depends(get_db)):
-    return get_tiendas_por_categoria(categoria_id,db)
-    db.close() 
 
-@router.get("/categoriaxtienda/{id_tienda}",response_model=list[categoria_tienda])
-def get_consulta_categoria_x_tienda2(id_tienda: int, db: Session = Depends(get_db)):
-    return get_categorias_por_tienda(id_tienda,db)
-    db.close() 
 
-#Agrega categoria por tienda
-@router.post("/post_categoria_tienda_a_tienda")
-def create_new_categoria_tienda2(new_tienda: categoria_tiendaXtienda, db: Session = Depends(get_db)):
-    rol = create_categoria_tiendaXtienda(new_tienda, db)
-    return rol
+
+
+
+
