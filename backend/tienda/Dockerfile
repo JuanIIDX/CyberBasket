@@ -17,7 +17,8 @@ ENV DATABASE_NAME="CyberBasket-Database"
 ENV DATABASE_USER="Administrador"
 ENV DATABASE_PASSWORD="admin68000!"
 ENV STRIPE_API_KEY = "sk_test_51NruCXAamYG5Eomr3Zxj6kAyk7yP8t8DrhZJVthl1L0YNXX1q5PkVo695LRJ318zX96MAg6vp0pYKE2ExxpdVWo600VMJ3m0LH"
-
+ENV STRIPE_API_KEY = "sk_test_51NruCXAamYG5Eomr3Zxj6kAyk7yP8t8DrhZJVthl1L0YNXX1q5PkVo695LRJ318zX96MAg6vp0pYKE2ExxpdVWo600VMJ3m0LH"
+ENV YOUR_DOMAIN "https://micro-ordenes.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io"
 
 EXPOSE 3101
 
