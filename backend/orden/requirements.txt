@@ -21,3 +21,4 @@ typing_extensions==4.8.0
 uvicorn==0.23.2
 gunicorn
 stripe
+Jinja2

@@ -1,16 +1,9 @@
 from datetime import datetime
-from msilib import Table
-import select
 
 
 from sqlalchemy.orm import Session, joinedload
-<<<<<<< HEAD
-from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario
-from schemas.orders import OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
-=======
 from models.orders import Orden, Detalle_Orden, Carrito_Compra, envio,Producto,pago,Inventario, Producto
 from schemas.orders import InventarioBasicSchema, OrderBase, OrderDetailBase,CarritoComprarBase, envioBase, pagoBase
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 import stripe
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -43,7 +36,6 @@ def update_orden(db: Session, orden_id: int, orden: OrderBase):
         for key, value in orden.dict().items():
             setattr(db_orden, key, value)
         db.commit()
-    print(db_orden, type(orden))   
     orden_update = {**db_orden.__dict__, **orden.dict()} 
     return orden_update
 
@@ -73,7 +65,6 @@ def update_detalle_orden(db: Session, detalle_orden_id: int, detalle_orden: Deta
         for key, value in detalle_orden.dict().items():
             setattr(db_orden, key, value)
         db.commit()
-    print(db_orden, type(detalle_orden))   
     orden_update = {**db_orden.__dict__, **detalle_orden.dict()} 
     return orden_update
 
@@ -122,7 +113,6 @@ def delete_carrito_compra(db: Session, user_id: int):
 
 def get_user_cart(db: Session, user_id: int):
    # return db.query(Carrito_Compra).options(joinedload(Carrito_Compra.producto)).filter(Carrito_Compra.id_user == user_id).all()
-   print(db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all())
    return db.query(Carrito_Compra).filter(Carrito_Compra.id_user == user_id).all()
 
 def get_product_id_by_order_id(db: Session, id_orden: int):
@@ -132,10 +122,6 @@ def get_product_id_by_order_id(db: Session, id_orden: int):
         .filter(Orden.id_orden == id_orden)
         .all()
     )
-    for obj in result:
-        for attr, value in obj.__dict__.items():
-            print(f"{attr}: {value}")
-    print(result)
     return result
 
 def get_inventario(db: Session, producto_id: int):
@@ -162,15 +148,12 @@ def get_inventory_quantity_by_store_id(db: Session,id_orden: int, producto_id: i
     )
  
         
-    print(result)
-    print(result2)
     if result is None:
         result = 0
     if result2 is None:
         result2 = 0
 
     resultado = result2 - result
-    print("RESULTADO",resultado)
     #result = {obj.cantidad: obj.__dict__ for obj in result}
     return resultado
 
@@ -186,13 +169,11 @@ def create_order_stripe(id_user : int,db: Session):
 
     # Obtener los id_tienda directamente en esta función
     id_tienda_list = []
-    print("CARRITO",len(carrito))
     for item in carrito:
         inventarios = db.query(Inventario.id_tienda).filter(Inventario.id_producto == item.id_producto).all()
         id_tienda_list.extend([inventario[0] for inventario in inventarios])
 
     ordenes = []
-    print("ID TIENDA LIST",id_tienda_list)
     # Crear una orden para cada tienda
     for id_tienda in id_tienda_list:
         orden_model = OrderBase(
@@ -204,7 +185,6 @@ def create_order_stripe(id_user : int,db: Session):
             id_tienda=id_tienda
         )
         ordenes.append(orden_model)
-    print("ORDNE MODEL",ordenes)
     if(len(ordenes) > 0):
         for i in ordenes:
             for item in carrito:
@@ -277,13 +257,11 @@ def update_inventory(db: Session, inventario:int, inventory: InventarioBasicSche
 
 def confirmed_payment(request: Request, db:Session):
     session_id = request.query_params["session_id"]
-    print("Mi session :",session_id)
     mi_datetime = datetime.now()
     mi_fecha = mi_datetime.date()
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
-        print("Mi session STRIPE :",session)
         if session.payment_status == "paid":
             # El pago se realizó correctamente
             # Actualizar los datos de la orden
@@ -310,11 +288,6 @@ def confirmed_payment(request: Request, db:Session):
 
             new_envio_table  = crear_envio(db, new_envio)
             new_pago_table = crear_pago(db, new_pago)
-<<<<<<< HEAD
-            for orden in ordenes:
-                if(orden.id_user == int(usuario) and orden.estado != "pagado"):
-                    
-=======
             producto= get_product_id_by_order_id(db, int(orden_id))
             
             delete_carrito_compra(db, int(usuario))
@@ -330,7 +303,6 @@ def confirmed_payment(request: Request, db:Session):
                         )
                         update_inventory(db, inventario,new_inventario)
 
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
                     new_orden = OrderBase(
                         id_pago=new_pago_table.id_pago,
                         id_envio=new_envio_table.id_envio,
@@ -342,10 +314,7 @@ def confirmed_payment(request: Request, db:Session):
                         id_user=orden.id_user
                     ) 
                     update_orden(db, orden.id_orden,new_orden)
-<<<<<<< HEAD
-=======
             
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
             return True
         else:
                 # El pago no se realizó correctamente
@@ -353,10 +322,7 @@ def confirmed_payment(request: Request, db:Session):
     except stripe.error.StripeError as e:
             # Maneja errores de Stripe
             raise HTTPException(status_code=400, detail=str(e))
-<<<<<<< HEAD
-=======
                     
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 
 def generate_tracking_number():
     numbers = ''.join(random.choices(string.digits, k=5))
@@ -375,10 +341,8 @@ def get_tienda_producto(db: Session, producto_id: int):
         .join(Carrito_Compra, Carrito_Compra.id_producto == Inventario.id_producto)
         .filter(Carrito_Compra.id_producto == producto_id)
     )
-    print(result)
     #result = {obj.id_tienda: obj.__dict__ for obj in result}
     result = {obj.id_tienda: {"id_tienda": obj.id_tienda} for obj in result}
-    print(result)
     return result
 
 
@@ -403,7 +367,6 @@ def create_order_from_cart(db: Session, user_id: int):
                     'cantidad': item.cantidad
                 }
                 productos_para_orden.append(producto_dict)
-                print(productos_para_orden)
         # Crear la orden en la base de datos
         orden = OrderBase(
             id_pago=None,
@@ -433,3 +396,5 @@ def create_order_from_cart(db: Session, user_id: int):
         return {"error": str(e)}
     
     
+def get_orden_usuario(db: Session, user_id: int):
+    return db.query(Orden).options(joinedload(Orden.Detalle_Orden)).filter(Orden.id_user == user_id).all()

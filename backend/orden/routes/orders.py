@@ -1,19 +1,16 @@
 
 from http.client import HTTPException
-from pipes import Template
 #from urllib.request import Request
-import os
 from fastapi import APIRouter, Depends, Request, HTTPException,Request
 from fastapi.responses import HTMLResponse
 #from jinja2 import Template
-import jinja2
 #from starlette.responses import TemplateResponse
-from schemas.orders import CarritoComprarBase, InventarioBasicSchema, OrderBase, OrderDetailBase, envioBase, pagoBase
+from schemas.orders import CarritoComprarBase, InventarioBasicSchema, OrderBase, OrderDetailBase, envioBase
 
 from sqlalchemy.orm import Session
 from controllers.db import get_db
 from controllers.orders import crear_carrito_compra, crear_envio, get_inventario, get_inventory_quantity_by_store_id, get_ordenes, get_orden, create_orden, get_product_id_by_order_id, get_user_cart, update_inventory, update_orden, delete_orden, get_detalle_ordenes, get_detalle_orden, create_detalle_orden, update_detalle_orden, delete_detalle_orden
-from controllers.orders import create_checkout_session,confirmed_payment,create_order_stripe
+from controllers.orders import create_checkout_session,confirmed_payment,create_order_stripe,get_orden_usuario
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
@@ -130,3 +127,8 @@ def get_cantidad( id_orden: int,  db: Session = Depends(get_db)):
 @router.get("/inventory/{id_producto}")
 def get_inve( id_producto: int,  db: Session = Depends(get_db)):
     return get_inventario(db, id_producto)  
+
+
+@router.get("/orden/{user_id}")
+def read_new_orden_usuario(user_id: int, db: Session = Depends(get_db)):
+    return get_orden_usuario(db, user_id)

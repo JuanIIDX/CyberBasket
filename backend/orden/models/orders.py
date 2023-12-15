@@ -1,13 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float,Double,Boolean,DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-<<<<<<< HEAD
-#from shared.models.user import User
-#from tienda.models.models_database import Producto, Tienda
-=======
-from typing import List
-from pydantic import BaseModel
->>>>>>> ac90fce24d4b4fa1deec0b3132e81ef662a93468
 
 Base = declarative_base()
     
