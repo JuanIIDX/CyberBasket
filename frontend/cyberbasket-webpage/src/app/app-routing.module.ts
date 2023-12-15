@@ -19,6 +19,11 @@ import { CreateShopComponent } from './pages/create-shop/create-shop.component';
 import { InventarioService } from './services/inventario.service';
 import { InventoryComponent } from './pages/inventory/inventory.component';
 import { BasketComponent } from './pages/basket/basket.component';
+import { ContactComponent } from './pages/contact/contact.component';
+import { OptionsComponent } from './pages/options/options.component';
+import { InfoComponent } from './pages/info/info.component';
+import { UserInfoComponent } from './pages/user-info/user-info.component';
+import { OrdersComponent } from './pages/orders/orders.component';
 
 
 
@@ -88,6 +93,26 @@ const routes: Routes = [
   {
     path: 'basket',
     component: BasketComponent,
+  },
+  {
+    path: 'contact',
+    component: ContactComponent,
+  },
+  {
+    path: 'options',
+    component: OptionsComponent,
+  },
+  {
+    path: 'info',
+    component: InfoComponent,
+  },
+  {
+    path: 'user_info',
+    component: UserInfoComponent,
+  },
+  {
+    path: 'order',
+    component: OrdersComponent,
   },
 
   {

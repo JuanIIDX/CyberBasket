@@ -6,25 +6,26 @@
 
  <div *ngIf="activeUser.email">      
    <li class="nav-heading">Cuenta</li>
-   <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-person"></i> <span>Usuario</span> </a></li>
+   <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user_info"> <i class="bi bi-person"></i> <span>Usuario</span> </a></li>
 
 
 
 
    <li class="nav-item"> <a class="nav-link collapsed" routerLink="/dashboard"> <i class="bi bi-grid"></i> <span>Informacion</span> </a></li>
-   <li class="nav-item"> <a class="nav-link collapsed" routerLink="/user-profile"> <i class="bi bi-grid"></i> <span>Tienda</span> </a></li>
+   <li class="nav-item"> <a class="nav-link collapsed" routerLink="/shop"> <i class="bi bi-grid"></i> <span>Tienda</span> </a></li>
    <li class="nav-item">
       <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#"> <i class="bi bi-grid"></i><span>Tiendas</span><i class="bi bi-chevron-down ms-auto"></i> </a>
       <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-         <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_1</span> </a></li>
-         <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_2</span> </a></li>
-         <li> <a routerLink="/icons-bootstrap"> <i class="bi bi-circle"></i><span>tienda_3</span> </a></li>
+         <li> <a routerLink="/shop"> <i class="bi bi-circle"></i><span>tienda_1</span> </a></li>
+         <li> <a routerLink="/shop"> <i class="bi bi-circle"></i><span>tienda_2</span> </a></li>
+         <li> <a routerLink="/shop"> <i class="bi bi-circle"></i><span>tienda_3</span> </a></li>
       </ul>
    </li>
 
    
 
    <li class="nav-item"> <a class="nav-link collapsed" routerLink="/inventory"> <i class="bi bi-person"></i> <span>Inventario</span> </a></li>
+   <li class="nav-item"> <a class="nav-link collapsed" routerLink="/order"> <i class="bi bi-person"></i> <span>Order</span> </a></li>
    <li class="nav-item"> <a class="nav-link collapsed" routerLink="/create_product"> <i class="bi bi-person"></i> <span>Crear Producto</span> </a></li>
    <li class="nav-item"> <a class="nav-link collapsed" routerLink="/create_shop"> <i class="bi bi-person"></i> <span>Crear Tienda</span> </a></li>
 
@@ -86,9 +87,9 @@
          </ul>
       </li>
        
-       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-contact"> <i class="bi bi-envelope"></i> <span>Contacto</span> </a></li>
-       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-register"> <i class="bi bi-card-list"></i> <span>Opciones</span> </a></li>
-       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/pages-faq"> <i class="bi bi-question-circle"></i> <span>Info</span> </a></li>
+       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/contact"> <i class="bi bi-envelope"></i> <span>Contacto</span> </a></li>
+       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/options"> <i class="bi bi-card-list"></i> <span>Opciones</span> </a></li>
+       <li class="nav-item"> <a class="nav-link collapsed" routerLink="/info"> <i class="bi bi-question-circle"></i> <span>Info</span> </a></li>
        
     </ul>
  </aside>
