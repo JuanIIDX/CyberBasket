@@ -29,7 +29,7 @@ def get_all_productos(db: Session = Depends(get_db)):
 @router.get("/productos/home", response_model=datos_producto_home,tags=["Productos"])
 async def get_consulta(pagina: int = 0, elementos: int = 24, db: Session = Depends(get_db)):
     """
-    Get product data for home page.
+    Consigue los productos para el home
 
     Parameters:
     - pagina: Page number (default: 0).
@@ -182,5 +182,79 @@ async def get_consulta(producto_id: int,db: Session = Depends(get_db)):
         print("Esta incorrecto")
     finally:
         db.close()
+
+
+
+"""
+★★Datos para buscar un dato en los productos
+"""
+@router.get("/productos/seach", response_model=datos_producto_home,tags=["Productos"])
+async def get_consulta(pagina: int = 0, elementos: int = 24,busqueda:str="", db: Session = Depends(get_db)):
+    """
+    Consigue los productos para la busqueda
+
+    Parameters:
+    - pagina: Page number (default: 0).
+    - elementos: Number of elements per page (default: 24).
+    - db: Database session dependency.
+
+    Returns:
+    - Product data for home page.
+    """
+    try:
+        # Realiza la consulta de cuantos productos existen
+        numero_datos = db.query(Producto).count()
+
+        # Realiza la consulta para saber en que pagina debe estar
+        numero_paginas = (numero_datos - 1) // elementos + 1
+        offset = pagina * elementos
+        limite = offset + elementos
+
+        result=pagina_producto_search(pagina,elementos,numero_datos,numero_paginas,offset,limite,busqueda,db)
+
+        return result
+
+    except Exception as e:
+        print("Esta incorrecto "+str(e))
+    finally:
+        db.close()
+
+
+"""
+★★Datos para buscar un dato en los productos con categoria
+"""
+@router.get("/productos/seach/category", response_model=datos_producto_home,tags=["Productos"])
+async def get_consulta_categoria(pagina: int = 0, elementos: int = 24,id_categoria:int=0,busqueda:str="",  db: Session = Depends(get_db)):
+    """
+    Consigue los productos para la busqueda
+
+    Parameters:
+    - pagina: Page number (default: 0).
+    - elementos: Number of elements per page (default: 24).
+    - db: Database session dependency.
+
+    Returns:
+    - Product data for home page.
+    """
+    try:
+        # Realiza la consulta de cuantos productos existen
+        numero_datos = db.query(Producto).count()
+
+        # Realiza la consulta para saber en que pagina debe estar
+        numero_paginas = (numero_datos - 1) // elementos + 1
+        offset = pagina * elementos
+        limite = offset + elementos
+
+        result=pagina_producto_search_categoria(pagina,elementos,numero_datos,numero_paginas,offset,limite,busqueda,id_categoria,db)
+
+        return result
+
+    except Exception as e:
+        print("Esta incorrecto "+str(e))
+    finally:
+        db.close()
+
+
+
 
 

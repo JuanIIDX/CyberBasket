@@ -18,3 +18,5 @@ fastapi[all]
 pymssql
 azure-functions==1.17.0
 gunicorn
+stripe==6.4.0
+jinja2==3.1.2

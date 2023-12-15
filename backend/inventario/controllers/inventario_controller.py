@@ -48,6 +48,81 @@ def pagina_producto_home(pagina:int, elementos:int, num_datos:int,num_paginas:in
             productos=lista_productos,
         )
 
+"""
+★★Controladores para busqueda sin categoria
+"""
+def pagina_producto_search(pagina:int, elementos:int, num_datos:int,num_paginas:int,offset:int, limite:int,palabra:str,db: Session = Depends(get_db)):
+        # Realizar la consulta
+        result = (
+            db.query(Producto.id_producto, Producto.nombre, Tienda.nombre, Producto.precio)
+            .join(  Inventario, Producto.id_producto == Inventario.id_producto)
+            .join( Tienda, Inventario.id_tienda == Tienda.id_tienda)
+            .order_by(Producto.fecha_creacion)
+            .filter(Producto.nombre.contains(palabra))
+            .offset(offset)
+            .limit(limite)
+            .all()
+        )
+
+        lista_productos = []
+        for id_producto, nombre_producto, nombre_tienda, precio in result:
+            lista_productos.append(
+                productos_home(
+                    id_producto=id_producto,
+                    nombre_producto=nombre_producto,
+                    nombre_tienda=nombre_tienda,
+                    precio_producto=precio,
+                )
+            )
+
+        return datos_producto_home(
+            num_productos=num_datos,
+            num_paginas=num_paginas,
+            pagina_actual=pagina,
+            offset=offset,
+            limite=limite,
+            productos=lista_productos,
+        )
+
+"""
+★★Controladores para busqueda sin categoria
+"""
+def pagina_producto_search_categoria(pagina:int, elementos:int, num_datos:int,num_paginas:int,offset:int, limite:int,palabra:str,id_categoria:int,db: Session = Depends(get_db)):
+        # Realizar la consulta
+        result = (
+            db.query(Producto.id_producto, Producto.nombre, Tienda.nombre, Producto.precio)
+            .join(  Inventario, Producto.id_producto == Inventario.id_producto)
+            .join( Tienda, Inventario.id_tienda == Tienda.id_tienda)
+            .join( ProductoXcategoria, Producto.id_producto == ProductoXcategoria.id_producto)
+            .order_by(Producto.fecha_creacion)
+            .filter(Producto.nombre.contains(palabra))
+            .filter(ProductoXcategoria.id_categoria == id_categoria)
+            .offset(offset)
+            .limit(limite)
+            .all()
+        )
+
+        lista_productos = []
+        for id_producto, nombre_producto, nombre_tienda, precio in result:
+            lista_productos.append(
+                productos_home(
+                    id_producto=id_producto,
+                    nombre_producto=nombre_producto,
+                    nombre_tienda=nombre_tienda,
+                    precio_producto=precio,
+                )
+            )
+
+        return datos_producto_home(
+            num_productos=num_datos,
+            num_paginas=num_paginas,
+            pagina_actual=pagina,
+            offset=offset,
+            limite=limite,
+            productos=lista_productos,
+        )
+
+
 
 
 """
