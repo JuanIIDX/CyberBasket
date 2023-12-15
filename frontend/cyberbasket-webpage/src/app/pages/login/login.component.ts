@@ -16,6 +16,7 @@ export class LoginComponent {
   }
 
   loginForm: FormGroup;
+  cargando_servidor: boolean = false;
 
   constructor(
     private client: HttpClient,
@@ -30,19 +31,18 @@ export class LoginComponent {
 
   onLogin() {
     if (this.loginForm.invalid) {
-      alert("error al login");
       return;
     }
 
+    this.cargando_servidor = true;
     this.client.post(`${environment.URL_USERS}users/login`, this.loginForm.value).subscribe(
       (data: any) => {
         sessionStorage.setItem("access_token", data.access_token);
         sessionStorage.setItem("user", JSON.stringify(data.user));
-        
-        this.router.navigate(['/']);
-
+        this.router.navigateByUrl("/dashboard");
       },
       (err: HttpErrorResponse) => {
+        this.cargando_servidor = false;
         alert(err.error.detail);
       }
     )

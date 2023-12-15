@@ -1,22 +1,119 @@
 <main id="main" class="main">
 
-    <div *ngFor="let producto of listaProductoById">
-        <div class="card" style="width: 500px;">
-            <img src="{{imagenes_productos_home[producto.id_producto]}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Producto {{ producto.id_producto }}</h5>
-                <p class="card-text">Nombre del Producto: {{ producto.nombre_producto }}</p>
-                <p class="card-text">Nombre de la Tienda: {{ producto.nombre_tienda }}</p>
-                <p class="card-text">Descripción: {{ producto.descripcion }}</p>
-                <p class="card-text">Precio: {{ producto.precio }}</p>
-                <p class="card-text">Cantidad Disponible: {{ producto.cantidad }}</p>
-            </div>
-        </div>
-    </div>
-
-
-    <button (click)="genera_compra()">ir a pagar</button>
+    <section class="section dashboard">
+       <div class="row" *ngIf="!descargand_datos_servidor; else pantalla_carga">
+          <div class="col-lg-8">
+             <div class="row">
+ 
+                <div class="col-12">
+                   <div class="card">
+ 
+                      <div class="card-body">
+                         <div class="ps-3">
 
 
 
-</main>
+                            <div class="card mb-3" *ngFor="let producto of listaProductoById">
+                                <div class="row g-0">
+                                   <div class="col-md-4"> <img src="{{imagenes_productos_home[producto.id_producto]}}" class="img-fluid rounded-start" alt="..."></div>
+                                   <div class="col-md-8">
+                                      <div class="card-body">
+                                         <div class="card-body">
+
+                                            <h3>{{ producto.nombre_producto }}</h3>
+                                            <h5 class="text-muted  ps-1">{{ producto.nombre_tienda}}</h5>
+                                            <p class="card-text">{{ producto.descripcion}}</p>
+
+                                            <div>
+                                                <span style="font-size: 50px;">${{ producto.precio }}</span>
+                                                <span style="font-size: 20px;">x {{ producto.cantidad}}</span>
+                                              </div>
+                                              <span style="font-size: 20px;">Envio $8000</span>
+
+
+                                            
+
+                                        </div>
+                                      </div>
+                                   </div>
+                                </div>
+                             </div>
+
+
+
+
+
+
+                         </div>
+                         <div id="reportsChart"></div>
+                      </div>
+                   </div>
+                </div>
+ 
+             </div>
+          </div>
+ 
+          <div class="col-lg-4">
+             <div class="card text-right">
+ 
+                <div class="card-body">
+ 
+                   <div class="col-md-12">
+                      <div class="row">
+                        <div class="col-md-12" >
+                            <h5 class="card-title">Total</h5>
+
+                            <div>
+                                <span style="font-size: 30px;">${{ total_precio }}</span>
+                                <span style="font-size: 15px;">+envio ${{ total_envio}}</span>
+                              </div>
+
+                              <div class="d-grid gap-2 mt-3">
+                                <button class="btn btn-primary" type="button" (click)="genera_compra()" [disabled]='cargando_datos_servidor'> 
+                                   <div *ngIf="!cargando_datos_servidor; else activo_boton1">
+                                      Hacer Compra
+                                   </div>
+                                   <ng-template #activo_boton1>
+                                      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Procesando compra
+                                   </ng-template>
+                                </button> 
+                             </div>
+
+                         </div>
+                         <div class="col-md-4" >
+                         </div>
+                      </div>
+                   </div>
+
+ 
+ 
+ 
+                </div>
+             </div>
+ 
+ 
+ 
+          </div>
+       </div>
+    </section>
+ 
+    <ng-template #pantalla_carga>
+       
+       <div style="position: absolute;margin: auto;top: 0; right: 0; bottom: 0; left: 0; width: 420px;  height: 80px;">
+          <div class="spinner-grow text-primary" style="width: 70px; height: 70px;  margin: 20px;" role="status"> <span class="visually-hidden">Loading...</span></div>
+          <div class="spinner-grow text-primary" style="width: 70px; height: 70px; margin: 20px;" role="status"> <span class="visually-hidden">Loading...</span></div>
+          <div class="spinner-grow text-primary" style="width: 70px; height: 70px; margin: 20px;" role="status"> <span class="visually-hidden">Loading...</span></div>
+       </div>
+       </ng-template>
+ 
+ 
+ </main>
+
+
+
+
+
+
+
+
+

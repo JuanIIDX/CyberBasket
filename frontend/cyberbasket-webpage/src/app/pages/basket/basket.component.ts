@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { catchError, tap } from 'rxjs';
 import { InventarioService } from 'src/app/services/inventario.service';
 import { OrdenService } from 'src/app/services/orden.service';
 import { UserModel } from 'src/models/user.model';
@@ -18,6 +18,13 @@ export class BasketComponent implements OnInit {
   dataCarrito: any;
   activeUser: UserModel;
   storedUserString = sessionStorage.getItem('user');
+
+
+  //Booleanos de estado
+  cargando_datos_servidor: boolean=false;
+  descargand_datos_servidor: boolean=true;
+  total_precio: number=0;
+  total_envio: number=0;
 
   constructor(
     private ordenService: OrdenService,
@@ -48,22 +55,49 @@ export class BasketComponent implements OnInit {
       .pipe(
         tap((data) => {
           this.dataCarrito = data;
+
           data.forEach((e) => {
             const idProducto = e.id_producto;
-            this.carga_datos_producto(idProducto);
+            this.carga_datos_producto(idProducto,e.cantidad,e.precio_unitario);
+            // Verificar si el id_producto ya ha sido procesado
+          });
+
+          data.forEach((e) => {
+            const idProducto = e.id_producto;
             this.carga_imagen_principal1(idProducto);
             // Verificar si el id_producto ya ha sido procesado
           });
+
+
+
+
+
+
+          this.descargand_datos_servidor = false;
+        }),
+        catchError((error) => {
+          alert('Error al cargar los datos');
+          this.router.navigate(['/']);          
+          return error;
         })
       )
       .subscribe();
   }
 
-  carga_datos_producto(id): Promise<any> {
+  carga_datos_producto(id:number,cantidad:number,precio_unitario:number): Promise<any> {
     return new Promise((resolve) => {
       this.inventarioService.carga_datos_producto(id).subscribe(
         (resp) => {
+          resp.cantidad = cantidad;
+          resp.precio= precio_unitario;
           this.listaProductoById.push(resp);
+
+          this.total_precio=this.total_precio+(cantidad*precio_unitario);
+          this.total_envio=this.total_envio+8000;
+
+
+
+          console.log('Valid response:', resp);
           console.log(this.listaProductoById);
 
           console.log('Se cargo correctamente la informacion del producto');
@@ -124,7 +158,14 @@ export class BasketComponent implements OnInit {
 
   genera_compra() {
 
+    if(this.total_precio==0){
+
+      alert("No hay productos en el carrito");
+      return;
+    }
+
     this.genera_orden();
+    this.cargando_datos_servidor=true;
 
   }
 
@@ -135,18 +176,21 @@ export class BasketComponent implements OnInit {
     this.http.post(url, data).subscribe(
       (response:any) => {
         const orden_creada = response["Ordenes creadas"][0];
+        console.log('------datos');
+        console.log(orden_creada);
         this.link_pago_stripe(orden_creada);
 
         alert("Se generaron las ordenes de compra");
       },
       (error) => {
+        this.cargando_datos_servidor=false;
         alert("Error al generar las ordenes de compra");
       }
     );
   }
 
-  link_pago_stripe(id_orden:49) {
-    const url = 'https://micro-ordenes.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/orden/create-checkout-session?order_id=35';
+  link_pago_stripe(id_orden:number) {
+    const url = 'https://micro-ordenes.victoriouspebble-f396dfa4.westus2.azurecontainerapps.io/orden/create-checkout-session?order_id='+id_orden;
     const data = { key: 'value' };
 
     this.http.post(url, data).subscribe(
@@ -158,17 +202,15 @@ export class BasketComponent implements OnInit {
         }
 
         if(response.session==null){
+          this.cargando_datos_servidor=false;
           return "";
         }
         else{
           return response.session;
         }
-
-
-        
-        
       },
       (error) => {
+        this.cargando_datos_servidor=false;
         alert("Error al generar las ordenes de compra");
         return "";
       }

@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/27f497df-bf51-420e-a38c-47fbbe504674/resourceGroups/CyberBasket-2023-3/providers/Microsoft.Web/sites/Cyberbasket2023",
+    "appService.deploySubpath": "dist"
+}

@@ -20,7 +20,8 @@ export class ProductComponent {
   nombre_producto: string="";
   nombre_tienda: string="";
   descripcion_producto: string="";
-  stock: number=0;
+  stock_producto: number=1;
+  stock_seleccion: number=1;
   precio_producto: number=0;
   precio_envio: number=8000;
   id_tienda: number = 0;
@@ -32,9 +33,9 @@ export class ProductComponent {
   activeUser: UserModel = new UserModel();
 
 
-
-
-
+  //Booleanos de estado
+  cargando_datos_servidor: boolean=false;
+  descargand_datos_servidor: boolean=true;
 
 
   //imagenes producto
@@ -66,10 +67,8 @@ export class ProductComponent {
   }
 
   obtiene_info_producto(){
-    console.log("datos del producto");
     this.carga_datos_producto();
-    console.log("datos del producto");
-    
+
     this.lista_imagenes=["","","","",""];
     this.carga_imagen_principal();
     this.carga_imagenes_secundarias();
@@ -95,14 +94,18 @@ export class ProductComponent {
               this.nombre_producto=resp.nombre_producto;
               this.nombre_tienda=resp.nombre_tienda;
               this.descripcion_producto=resp.descripcion;
-              this.stock=resp.cantidad;
+              this.stock_producto=resp.cantidad;
               this.precio_producto=resp.precio;
 
               console.log("Se cargo correctamente la informacion del producto");
+              this.descargand_datos_servidor=false;
               resolve(resp);
             },
             (err) => {
               console.error('Error:', err);
+              this.descargand_datos_servidor=true;
+              alert("Error al cargar la informacion del producto");
+              this.router.navigateByUrl("/");
               resolve(null);
             }
           );
@@ -154,11 +157,12 @@ export class ProductComponent {
     //Crea un objeto en el carrito de compras
 
     crear_objeto_carrito_compra() {
+      this.cargando_datos_servidor = true;
       const modelo:  Carrito_Compra_Carga_Model = new Carrito_Compra_Carga_Model();
   
       modelo.id_producto = this.id_producto_pagina;
       modelo.id_user = this.activeUser.id;  
-      modelo.cantidad = 1;
+      modelo.cantidad = this.stock_seleccion;
       modelo.precio_unitario = this.precio_producto;
       modelo.estado = "pendiente";
 
@@ -176,6 +180,7 @@ export class ProductComponent {
   /*         this.loadingService.loadingController.dismiss(); */
           console.log('Error al almacenar el registro.');
           alert('Error al almacenar el registro.');
+          this.cargando_datos_servidor = false;
   
         }
       );
