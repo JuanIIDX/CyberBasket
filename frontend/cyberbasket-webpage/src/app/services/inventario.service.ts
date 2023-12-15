@@ -21,6 +21,20 @@ export class InventarioService {
     return this.http.get<any>(url);
   }
 
+  //http://127.0.0.1:100/productos/seach?pagina=0&elementos=24&busqueda=neko
+  carga_datos_search_sincat(pagina: number,elementos:number,palabra:string) {
+    const url = `${environment.URL_INVENTARIO}productos/seach?pagina=${pagina}&elementos=${elementos}&busqueda=${palabra}`;
+    console.log(url);
+    return this.http.get<any>(url);
+  }
+
+  //'http://127.0.0.1:100/productos/seach/category?pagina=0&elementos=24&id_categoria=1&busqueda=Neko' 
+  carga_datos_search_concat(pagina: number,elementos:number,palabra:string,id_categoria:string) {
+    const url = `${environment.URL_INVENTARIO}productos/seach/category?pagina=${pagina}&elementos=${elementos}&id_categoria=${id_categoria}&busqueda=${palabra}`;
+    console.log(url);
+    return this.http.get<any>(url);
+  }
+
 
 
   /*

@@ -32,6 +32,11 @@ export class OrdenService {
     return this.http.get<any>(url);
   }
 
+  carga_datos_ordenes(id_user: number) {
+    const url = `${environment.URL_ORDEN}orden/orden_by_user/${id_user}`;
+    console.log(url);
+    return this.http.get<any>(url);
+  }
 
 
   loadData(): Promise<any> {
@@ -51,6 +56,8 @@ export class OrdenService {
       );
     });
   }
+
+
 
   loadDataId(id: number): Observable<any> {
     /* const authToken = this.getToken();
@@ -73,6 +80,11 @@ export class OrdenService {
         })
       );
   }
+
+
+  
+
+
 }
 
 

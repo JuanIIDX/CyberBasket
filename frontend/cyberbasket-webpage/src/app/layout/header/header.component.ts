@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common'
 import { UserModel } from 'src/models/user.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -9,8 +10,10 @@ import { UserModel } from 'src/models/user.model';
 })
 export class HeaderComponent {
   activeUser: UserModel = new UserModel();
+  busqueda: string = '';
 
-  constructor(@Inject(DOCUMENT) private document: Document) { }
+
+  constructor(@Inject(DOCUMENT) private document: Document, private router:Router) { }
 
   ngOnInit(): void {
     const storedUserString = sessionStorage.getItem("user")
@@ -42,6 +45,15 @@ export class HeaderComponent {
     console.log("texto");
     console.log(sessionStorage);
     window.location.href = "/";
+  }
+
+
+  busqueda_producto() {
+    const palabra = (<HTMLInputElement>document.getElementById("busqueda_texto")).value;
+    console.log(palabra);
+
+    this.router.navigate(["/search"], {queryParams: {word: palabra}});
+
   }
 
 }

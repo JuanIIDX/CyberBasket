@@ -1,34 +1,50 @@
 <main id="main" class="main">
-    <div class="pagetitle">
-       <h1>Ordenes</h1>
-       <nav>
-          <ol class="breadcrumb">
-             <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
-             <li class="breadcrumb-item active">Ordenes</li>
-          </ol>
-       </nav>
-    </div>
-    <div class="">
-       <div class="card info-card sales-card">
-          <div class="card-body pb-0">
- 
-               <table class="table table-borderless">
-                  <thead>
-                     <tr>
-                        <th scope="col">Imagen</th>
-                        <th scope="col">Producto</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Vendidos</th>
-                        <th scope="col">Total</th>
-                     </tr>
-                  </thead>
-       
-                  <tbody>
-                   </tbody>
-       
-               </table>
-            </div>
- 
-       </div>
-    </div>
- 
+   <div class="pagetitle">
+      <h1>Ordenes</h1>
+      <nav>
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+            <li class="breadcrumb-item active">Ordenes</li>
+         </ol>
+      </nav>
+   </div>
+   <div class="">
+      <div class="card info-card sales-card">
+         <div class="card-body pb-0">
+
+
+            <table class="table table-borderless">
+               <thead>
+                  <tr>
+                     <th scope="col">Imagen</th>
+                     <th scope="col">Producto</th>
+                     <th scope="col">Precio</th>
+                     <th scope="col">Estado</th>
+                     <th scope="col">Total</th>
+                  </tr>
+               </thead>
+
+               <tbody>
+                  <tr *ngFor="let item of listaProductoById">
+                     <td><img style="width: 50px; height: 50px;" src="{{imagenes_productos_home[item.id_producto]}}"
+                           alt="Imagen"></td>
+                     <td>{{ item.nombre_producto }}</td>
+                     <td>{{ item.precio }}</td>
+                     <td>{{ item.descripcion }}</td>
+                     <td>{{ item.cantidad }}</td>
+                  </tr>
+               </tbody>
+
+            </table>
+
+
+
+
+
+
+
+
+         </div>
+      </div>
+   </div>
+</main>

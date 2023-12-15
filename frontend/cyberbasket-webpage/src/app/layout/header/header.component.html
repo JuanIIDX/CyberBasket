@@ -8,18 +8,15 @@
     
   </div>
   <div class="search-bar">
-    <form
-      class="search-form d-flex align-items-center"
-      action="/search"
-    >
-      <input
-        type="text"
-        name="busqueda"
-        placeholder="Busqueda"
-        title="Enter search keyword"
-      />
-      <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-    </form>
+
+
+      <div class="search-form d-flex align-items-center">
+        <input type="text" class="form-control" id="busqueda_texto" />
+      <button title="Search" (click)="busqueda_producto()"><i class="bi bi-search" ></i></button>
+
+      </div>
+
+
   </div>
   <nav class="header-nav ms-auto">
     <ul *ngIf="activeUser.email; else loggedOut" class="d-flex align-items-center">
@@ -43,63 +40,15 @@
           <li>
             <hr class="dropdown-divider" />
           </li>
-          <li class="message-item">
-            <a href="#">
-              <img
-                src="assets/img/messages-1.jpg"
-                alt=""
-                class="rounded-circle"
-              />
-              <div>
-                <h4>{{ activeUser.name }}</h4>
-                <p>
-                  Velit asperiores et ducimus soluta repudiandae labore officia
-                  est ut...
-                </p>
-                <p>4 hrs. ago</p>
-              </div>
-            </a>
-          </li>
+
           <li>
             <hr class="dropdown-divider" />
           </li>
-          <li class="message-item">
-            <a href="#">
-              <img
-                src="assets/img/messages-2.jpg"
-                alt=""
-                class="rounded-circle"
-              />
-              <div>
-                <h4>{{ activeUser.name }}</h4>
-                <p>
-                  Velit asperiores et ducimus soluta repudiandae labore officia
-                  est ut...
-                </p>
-                <p>6 hrs. ago</p>
-              </div>
-            </a>
-          </li>
+
           <li>
             <hr class="dropdown-divider" />
           </li>
-          <li class="message-item">
-            <a href="#">
-              <img
-                src="assets/img/messages-3.jpg"
-                alt=""
-                class="rounded-circle"
-              />
-              <div>
-                <h4>{{ activeUser.name }}</h4>
-                <p>
-                  Velit asperiores et ducimus soluta repudiandae labore officia
-                  est ut...
-                </p>
-                <p>8 hrs. ago</p>
-              </div>
-            </a>
-          </li>
+
           <li>
             <hr class="dropdown-divider" />
           </li>
