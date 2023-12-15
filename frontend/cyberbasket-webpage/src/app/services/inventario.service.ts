@@ -14,7 +14,7 @@ export class InventarioService {
   *Metodo que carga los productos del home
   */
   carga_datos_home(pagina: number,elementos:number) {
-    const url = `${environment.URL_TEST_INVENTARIO}productos/home?pagina=${pagina}&elementos=${elementos}`;
+    const url = `${environment.URL_INVENTARIO}productos/home?pagina=${pagina}&elementos=${elementos}`;
     console.log(url);
     return this.http.get<any>(url);
   }
@@ -36,7 +36,7 @@ export class InventarioService {
   carga_imagen_principal(id_producto: number) {
     const url = `${environment.URL_TEST_INVENTARIO}imagenes_producto/principal?producto_id=${id_producto}`;
     console.log(url);
-    
+
     return this.http.get<any>(url);
   }
 
