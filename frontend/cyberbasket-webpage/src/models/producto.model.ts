@@ -38,6 +38,17 @@ export class Producto_Json_Solo_Model{
 }
 
 
+export class Carrito_Compra_Carga_Model{
+
+    id_producto: number = 0;
+    id_user: number = 0;
+    cantidad: number = 0;
+    precio_unitario: number = 0;
+    estado: string = "";
+ 
+}
+
+
 
 
 

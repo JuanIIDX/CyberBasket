@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component , Inject} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InventarioService } from 'src/app/services/inventario.service';
+import { DOCUMENT } from '@angular/common'
+import { UserModel } from 'src/models/user.model';
+import { Carrito_Compra_Carga_Model } from 'src/models/producto.model';
+import { OrdenService } from 'src/app/services/orden.service';
 
 @Component({
   selector: 'app-product',
@@ -24,15 +28,39 @@ export class ProductComponent {
   
   //marca_producto: string="";
 
+  //Datos del usuario
+  activeUser: UserModel = new UserModel();
+
+
+
+
+
 
 
   //imagenes producto
   lista_imagenes: string [];
   imagen_principal: string="";
 
-  constructor(private route: ActivatedRoute,private http: HttpClient,private inventarioServicio:InventarioService) { }
+  constructor(private router: Router,private route: ActivatedRoute,private http: HttpClient,private inventarioServicio:InventarioService,@Inject(DOCUMENT) private document: Document,private ordenServicio:OrdenService) { }
 
   ngOnInit() {
+
+    const storedUserString = sessionStorage.getItem("user")
+
+    if (storedUserString) {
+      const storedUser = JSON.parse(storedUserString)
+
+      this.activeUser = new UserModel();
+      this.activeUser.id = storedUser.id
+      this.activeUser.email = storedUser.email
+      this.activeUser.name = storedUser.name
+      this.activeUser.last_name = storedUser.last_name
+      this.activeUser.role_id = storedUser.role_id
+    }
+
+    console.log(this.activeUser.id);
+
+
     this.id_producto_pagina = this.route.snapshot.queryParams['id'];
     this.obtiene_info_producto();
   }
@@ -122,6 +150,36 @@ export class ProductComponent {
             );
         });
       }
+
+    //Crea un objeto en el carrito de compras
+
+    crear_objeto_carrito_compra() {
+      const modelo:  Carrito_Compra_Carga_Model = new Carrito_Compra_Carga_Model();
+  
+      modelo.id_producto = this.id_producto_pagina;
+      modelo.id_user = this.activeUser.id;  
+      modelo.cantidad = 1;
+      modelo.precio_unitario = this.precio_producto;
+      modelo.estado = "pendiente";
+
+  
+      console.log(this.lista_imagenes);
+  
+      this.ordenServicio.post_carrito_compra(modelo).subscribe(
+        (datos) => {
+  /*      this.loadingService.loadingController.dismiss(); */
+          console.log('Registro almacenado correctamente.');
+          alert('Se almaceno en el carrito de compras');
+          this.router.navigate(['/']);
+        },
+        (err) => {
+  /*         this.loadingService.loadingController.dismiss(); */
+          console.log('Error al almacenar el registro.');
+          alert('Error al almacenar el registro.');
+  
+        }
+      );
+    }
 
 
 

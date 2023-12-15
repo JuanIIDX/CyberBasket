@@ -1,6 +1,22 @@
 <main id="main" class="main">
-fdsafas
-fdsafsad
-fsadfasfs
 
- </main>
+    <div *ngFor="let producto of listaProductoById">
+        <div class="card" style="width: 500px;">
+            <img src="{{imagenes_productos_home[producto.id_producto]}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Producto {{ producto.id_producto }}</h5>
+                <p class="card-text">Nombre del Producto: {{ producto.nombre_producto }}</p>
+                <p class="card-text">Nombre de la Tienda: {{ producto.nombre_tienda }}</p>
+                <p class="card-text">Descripción: {{ producto.descripcion }}</p>
+                <p class="card-text">Precio: {{ producto.precio }}</p>
+                <p class="card-text">Cantidad Disponible: {{ producto.cantidad }}</p>
+            </div>
+        </div>
+    </div>
+
+
+    <button>ir a pagar</button>
+
+
+
+</main>

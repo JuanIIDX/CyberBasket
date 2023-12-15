@@ -1,3 +1,109 @@
 <main id="main" class="main">
-    create_shop
+        
+
+
+    <div class="pagetitle">
+        <h1>Crear tienda</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+                <li class="breadcrumb-item active">Crear tienda</li>
+
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Informacion de la nueva tienda</h5>
+
+
+                            <div class="row mb-3">
+                                <label for="inputText" class="col-sm-2 col-form-label">Nombre Tienda</label>
+                                <div class="col-sm-10"> <input type="text" class="form-control" id="inputText" [(ngModel)]="nombre_tienda">
+                                </div>
+                            </div>
+
+
+                            <div class="row mb-3">
+                                <label for="inputPassword" class="col-sm-2 col-form-label">Descripcion</label>
+                                <div class="col-sm-10 " style="white-space: pre-wrap;"><textarea class="form-control" style="height: 400px" [(ngModel)]="descripcion" ></textarea>
+                                </div>
+                            </div>
+
+                            
+
+
+                            <div class="row mb-3">
+                                <label for="inputNumber" class="col-sm-2 col-form-label">Imagen</label>
+                                <div class="col-sm-10">
+                                    
+                                    <input class="form-control" type="file" id="formFile" (change)="fileChangeEvent($event,0)">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="row mb-3">
+                                <legend class="col-form-label col-sm-2 pt-0">Activo</legend>
+                                <div class="col-sm-10">
+                                    <div class="form-check"> <input class="form-check-input" type="checkbox"
+                                            id="gridCheck2" checked> <label class="form-check-label"
+                                            for="gridCheck2">Tienda activa</label></div>
+                                </div>
+                            </div>
+
+ 
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Crear tienda</label>
+                                <div class="col-sm-10"> <button type="submit" class="btn btn-primary" (click)="post_nueva_tienda()">Subir</button></div>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Ejemplo de producto</h5>
+                        <h2>{{nombre_tienda}}</h2>
+
+                        <div class="card">
+
+                            <div>
+                            <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators"> 
+                                <!-------------------Parte que ordena los botones de las imagenes-------------->
+                                <button *ngIf="imagen_base64 !== ''" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button> 
+                            </div>
+                                <!-------------------Parte que ordena los sliders-------------->
+                            <div class="carousel-inner">
+                                   <div *ngIf="imagen_base64[0] !== ''" class="carousel-item active"> <img src="{{imagen_base64}}" class="d-block w-100" alt="..."></div>
+                            </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev"> <span class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="visually-hidden">Previous</span> </button> <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next"> <span class="carousel-control-next-icon" aria-hidden="true"></span> <span class="visually-hidden">Next</span> </button>
+                             </div>
+                            </div>
+
+                             <div class="card-body">
+                                <h5 class="card-title">Descripcion</h5>
+                                <h2>{{descripcion}}</h2>
+                                
+                             </div>
+
+                              
+
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    
 </main>
